@@ -1,48 +1,53 @@
 # Cosmos
 
-COSMOS – AI-Powered Code Review & Debugging Assistant
-Cognitive Optimized System for Machine-assisted Optimization of Software
+**COSMOS – AI-Powered Code Review & Debugging Assistant**  
+Cognitive Optimized System for Machine-assisted Optimization of Software  
 🚀 An AI-powered debugging and optimization assistant that analyzes, debugs, and improves code using a custom-trained LLM.
 
-📌 Table of Contents
-Introduction
-Project Goals & Objectives
-Features & Functionality
-Technical Stack
-System Architecture
-Data Collection & AI Model Training
-Development Timeline
-Installation & Usage
-API Endpoints
-Deployment Strategy
-Challenges & Future Improvements
-References & Resources
-1️⃣ Introduction
-Project Summary
+## 📌 Table of Contents
+- [Introduction](#introduction)
+- [Project Goals & Objectives](#project-goals--objectives)
+- [Features & Functionality](#features--functionality)
+- [Technical Stack](#technical-stack)
+- [System Architecture](#system-architecture)
+- [Data Collection & AI Model Training](#data-collection--ai-model-training)
+- [Development Timeline](#development-timeline)
+- [Installation & Usage](#installation--usage)
+- [API Endpoints](#api-endpoints)
+- [Deployment Strategy](#deployment-strategy)
+- [Challenges & Future Improvements](#challenges--future-improvements)
+- [References & Resources](#references--resources)
+
+## 1️⃣ Introduction
+
+### Project Summary
 COSMOS is a full-stack AI-powered debugging tool designed to analyze, debug, and optimize code in real time. It integrates LLM-based AI, cloud deployment, and a web-based UI, allowing developers to receive instant feedback and best practice recommendations.
 
-Why COSMOS?
-Existing AI models (like ChatGPT) lack debugging specialization.
-Developers waste time troubleshooting inefficient code.
-COSMOS provides tailored, structured, and AI-driven code improvement.
-2️⃣ Project Goals & Objectives
-🔹 Primary Goals
-✅ Build a custom-trained LLM that specializes in debugging & code optimization.
-✅ Provide real-time AI feedback via a web interface & VS Code extension.
-✅ Optimize code performance & security through automated refactoring.
+#### Why COSMOS?
+- Existing AI models (like ChatGPT) lack debugging specialization.
+- Developers waste time troubleshooting inefficient code.
+- COSMOS provides tailored, structured, and AI-driven code improvement.
 
-🔹 Long-Term Goals
-🚀 Expand to multi-language support (Python → C++ → Java → JS).
-🚀 Enable AI-assisted refactoring for optimizing code efficiency.
-🚀 Deploy COSMOS as an API for third-party integrations.
+## 2️⃣ Project Goals & Objectives
 
-3️⃣ Features & Functionality
-🔹 Core Features (MVP)
-✔️ AI-powered syntax & logic error detection
-✔️ AI-generated optimized code suggestions
-✔️ Web-based code submission & feedback UI
-✔️ VS Code extension for in-editor AI debugging
-✔️ User history tracking for past code evaluations
+### 🔹 Primary Goals
+- ✅ Build a custom-trained LLM that specializes in debugging & code optimization.
+- ✅ Provide real-time AI feedback via a web interface & VS Code extension.
+- ✅ Optimize code performance & security through automated refactoring.
+
+### 🔹 Long-Term Goals
+- 🚀 Expand to multi-language support (Python → C++ → Java → JS).
+- 🚀 Enable AI-assisted refactoring for optimizing code efficiency.
+- 🚀 Deploy COSMOS as an API for third-party integrations.
+
+## 3️⃣ Features & Functionality
+
+### 🔹 Core Features (MVP)
+- ✔️ AI-powered syntax & logic error detection
+- ✔️ AI-generated optimized code suggestions
+- ✔️ Web-based code submission & feedback UI
+- ✔️ VS Code extension for in-editor AI debugging
+- ✔️ User history tracking for past code evaluations
 
 🔹 Advanced Features (Future Updates)
 🚀 AI-powered code performance benchmarking
@@ -123,5 +128,3 @@ Challenges
 ⚠ Computational Costs – LLM inference is resource-heavy.
 ⚠ Training Data Bias – Model may inherit biases from Stack Overflow & GitHub data.
 ⚠ Security Risks – Users may submit malicious code snippets.
-
-Future Enhancements
