@@ -12,6 +12,11 @@ struct CosmosApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                // Inject environment objects for use in all views:
+                .environmentObject(CurrencyModel())
+                .environmentObject(StudyTimerModel())
+                .environmentObject(ShopModel())
+                .environmentObject(CivilizationModel())
         }
     }
 }

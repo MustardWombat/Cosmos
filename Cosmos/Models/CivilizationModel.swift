@@ -1,0 +1,78 @@
+//
+//  Untitled.swift
+//  Cosmos
+//
+//  Created by James Williams on 3/24/25.
+//
+
+import Foundation
+import Combine
+
+class CivilizationModel: ObservableObject {
+    @Published var population: Int = 100
+    @Published var resources: Int = 50
+    
+    // Keys for persistent storage
+    private let simulationKey = "CivilizationSimulationData"
+    private let lastUpdateKey = "CivilizationLastUpdate"
+    
+    // How often the simulation runs when the app is active (in seconds)
+    private let cycleInterval: TimeInterval = 5
+    
+    init() {
+        loadData()
+        // When initializing, update the model using the elapsed time.
+        updateFromBackground()
+    }
+    
+    /// Called periodically when the app is running.
+    func simulate() {
+        simulateCycle()
+        saveData()
+        updateLastUpdate()
+    }
+    
+    /// Simulates one cycle of population and resource increase.
+    private func simulateCycle() {
+        // Random increase, adjust the range as desired.
+        population += Int.random(in: 1...10)
+        resources += Int.random(in: 5...15)
+    }
+    
+    /// Update the simulation based on the time elapsed since the last update.
+    func updateFromBackground() {
+        let now = Date()
+        let lastUpdate = UserDefaults.standard.object(forKey: lastUpdateKey) as? Date ?? now
+        let elapsedSeconds = now.timeIntervalSince(lastUpdate)
+        
+        // Determine the number of cycles that should have occurred.
+        let cycles = Int(elapsedSeconds / cycleInterval)
+        
+        // Run simulation cycles to "catch up"
+        for _ in 0..<cycles {
+            simulateCycle()
+        }
+        
+        saveData()
+        updateLastUpdate()
+    }
+    
+    private func updateLastUpdate() {
+        UserDefaults.standard.set(Date(), forKey: lastUpdateKey)
+    }
+    
+    private func saveData() {
+        let data: [String: Int] = [
+            "population": population,
+            "resources": resources
+        ]
+        UserDefaults.standard.set(data, forKey: simulationKey)
+    }
+    
+    private func loadData() {
+        if let data = UserDefaults.standard.dictionary(forKey: simulationKey) as? [String: Int] {
+            population = data["population"] ?? 100
+            resources = data["resources"] ?? 50
+        }
+    }
+}
