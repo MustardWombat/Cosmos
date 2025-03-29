@@ -1,10 +1,3 @@
-//
-//  BottomBar.swift
-//  Cosmos
-//
-//  Created by James Williams on 3/24/25.
-//
-
 import SwiftUI
 
 struct BottomBarButton: View {
@@ -15,8 +8,10 @@ struct BottomBarButton: View {
     var body: some View {
         Button(action: {
             if currentView != viewName {
+                #if os(iOS)
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
+                #endif
                 currentView = viewName
             }
         }) {

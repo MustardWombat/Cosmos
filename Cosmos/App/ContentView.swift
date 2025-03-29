@@ -19,5 +19,8 @@ struct ContentView_Previews: PreviewProvider {
             .environmentObject(StudyTimerModel())
             .environmentObject(ShopModel())
             .environmentObject(CivilizationModel())
+            .environmentObject(MiningModel())
+            .environmentObject(CategoriesViewModel())
+
     }
 }

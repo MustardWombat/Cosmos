@@ -28,10 +28,7 @@ class MiningModel: ObservableObject {
     // List of planets available to mine (earned from the study timer).
     @Published var availablePlanets: [Planet] = [
         // Sample planets. In your app, you'll add these dynamically.
-        Planet(name: "Mercury", baseMiningTime: 60, miningReward: 10),
-        Planet(name: "Venus", baseMiningTime: 90, miningReward: 15),
-        Planet(name: "Earth", baseMiningTime: 120, miningReward: 20),
-        Planet(name: "Mars", baseMiningTime: 80, miningReward: 12)
+        Planet(name: "Starter Planet", baseMiningTime: 1000, miningReward: 100),
     ]
     
     // Current mining state:
@@ -97,6 +94,7 @@ class MiningModel: ObservableObject {
     func cancelMining() {
         resetMiningState()
     }
+    
     
     /// Refreshes mining progress (useful when app returns to active state).
     func refreshMiningProgress() {

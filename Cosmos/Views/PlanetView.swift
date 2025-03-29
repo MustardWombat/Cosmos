@@ -1,36 +1,75 @@
-//
-//  PlanetView.swift
-//  Cosmos
-//
-//  Created by James Williams on 3/24/25.
-//
-
 import SwiftUI
 
 struct PlanetView: View {
     @Binding var currentView: String
-    @EnvironmentObject var timerModel: StudyTimerModel
+    @EnvironmentObject var miningModel: MiningModel
     @EnvironmentObject var currencyModel: CurrencyModel
-    @EnvironmentObject var shopModel: ShopModel
-    @EnvironmentObject var civModel: CivilizationModel
+    @EnvironmentObject var timerModel: StudyTimerModel
+    @Environment(\.scenePhase) var scenePhase
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Planet View")
-                .font(.largeTitle)
-                .foregroundColor(.orange)
+        ZStack {
+            // Starry background overlay (drawn above the black background).
+            StarOverlay(starCount: 50)
             
-            // Display the coin counter component
-            CoinDisplay()
-                .environmentObject(currencyModel)
-            
-            Text("Balance: \(currencyModel.balance)")
-                .foregroundColor(.white)
-
-            
-            Spacer()
+            VStack(spacing: 0) {
+                // Display coin counter component.
+                CoinDisplay()
+                    .environmentObject(currencyModel)
+                
+                // List available planets from MiningModel.
+                ForEach(miningModel.availablePlanets) { planet in
+                    HStack {
+                        Text(planet.name)
+                            .foregroundColor(.white)
+                        Spacer()
+                        Text("Reward: \(planet.miningReward)")
+                            .foregroundColor(.white)
+                        
+                        if miningModel.currentMiningPlanet?.id == planet.id {
+                            Text("Mining... \(miningModel.remainingTime)s")
+                                .foregroundColor(.green)
+                        } else {
+                            Button("Mine") {
+                                // Start mining using the current focus mode status.
+                                miningModel.startMining(planet: planet, inFocusMode: timerModel.isTimerRunning)
+                            }
+                            .disabled(miningModel.currentMiningPlanet != nil)
+                        }
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.black)
+                
+                if miningModel.currentMiningPlanet != nil {
+                    Button("Cancel Mining") {
+                        miningModel.cancelMining()
+                    }
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                
+                Spacer()
+            }
+            .padding(EdgeInsets(top: 80, leading: 20, bottom: 0, trailing: 20))
         }
-        .padding()
-        .background(Color.black.ignoresSafeArea())
+        .ignoresSafeArea()
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                miningModel.refreshMiningProgress()
+            }
+        }
+        .background(Color.black) // This sets the background behind the ZStack.
+    }
+}
+
+struct PlanetView_Previews: PreviewProvider {
+    static var previews: some View {
+        PlanetView(currentView: .constant("PlanetView"))
+            .environmentObject(CurrencyModel())
+            .environmentObject(StudyTimerModel())
+            .environmentObject(MiningModel())
     }
 }

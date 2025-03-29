@@ -1,6 +1,8 @@
 //
 //  CosmosApp.swift
-//  Cosmos
+//
+//
+//
 //
 //  Created by James Williams on 3/21/25.
 //
@@ -17,6 +19,9 @@ struct CosmosApp: App {
                 .environmentObject(StudyTimerModel())
                 .environmentObject(ShopModel())
                 .environmentObject(CivilizationModel())
+                .environmentObject(MiningModel())
+                .environmentObject(CategoriesViewModel())
+
         }
     }
 }

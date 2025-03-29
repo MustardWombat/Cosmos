@@ -1,13 +1,10 @@
-//
-//  StudyTimerModel.swift
-//  Cosmos
-//
-//  Created by James Williams on 3/24/25.
-//
-
 import Foundation
 import Combine
 import SwiftUI
+
+#if os(iOS)
+import UIKit
+#endif
 
 class StudyTimerModel: ObservableObject {
     @Published var earnedRewards: [String] = [] {
@@ -25,7 +22,11 @@ class StudyTimerModel: ObservableObject {
     }
     
     private var timer: Timer?
+    
+    #if os(iOS)
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+    #endif
+    
     private var timerStartDate: Date?
     private var initialDuration: Int = 0
     private let studyDataKey = "StudyTimerModelData"
@@ -50,9 +51,11 @@ class StudyTimerModel: ObservableObject {
             isTimerRunning = true
             reward = nil
             
+            #if os(iOS)
             backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "StudyTimer") {
                 self.endBackgroundTask()
             }
+            #endif
             
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 self?.updateTimeRemaining()
@@ -109,12 +112,18 @@ class StudyTimerModel: ObservableObject {
         return rewardValue
     }
     
+    #if os(iOS)
     private func endBackgroundTask() {
         if backgroundTaskID != .invalid {
             UIApplication.shared.endBackgroundTask(backgroundTaskID)
             backgroundTaskID = .invalid
         }
     }
+    #else
+    private func endBackgroundTask() {
+        // No background task support on macOS.
+    }
+    #endif
     
     func triggerFocusCheck() {
         isFocusCheckActive = true
@@ -140,5 +149,13 @@ class StudyTimerModel: ObservableObject {
             totalTimeStudied = data["totalTimeStudied"] as? Int ?? 0
             focusStreak = data["focusStreak"] as? Int ?? 0
         }
+    }
+}
+extension StudyTimerModel {
+    var studiedMinutes: Int {
+        if let _ = timerStartDate { // timerStartDate is private; you may need to adjust visibility
+            return (initialDuration - timeRemaining) / 60
+        }
+        return 0
     }
 }

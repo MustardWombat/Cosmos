@@ -1,10 +1,3 @@
-//
-//  ShopView.swift
-//  Cosmos
-//
-//  Created by James Williams on 3/24/25.
-//
-
 import SwiftUI
 
 struct ShopView: View {
@@ -19,33 +12,42 @@ struct ShopView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 20) {
-                    Text("Civilization Shop")
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.orange)
-                    CoinDisplay()
-                        .environmentObject(currencyModel)
-                    ForEach(items) { item in
-                        HStack {
-                            Text(item.name)
-                                .foregroundColor(.white)
-                            Spacer()
-                            Text("\(item.price) Coins")
-                                .foregroundColor(.white)
-                            Button("Buy") {
-                                buy(item: item)
+        ZStack {
+            // Add the starry background.
+            StarOverlay(starCount: 50)
+            
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Text("Shop")
+                            .font(.largeTitle)
+                            .bold()
+                            .foregroundColor(.orange)
+                        
+                        CoinDisplay()
+                            .environmentObject(currencyModel)
+                        
+                        ForEach(items) { item in
+                            HStack {
+                                Text(item.name)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("\(item.price) Coins")
+                                    .foregroundColor(.white)
+                                Button("Buy") {
+                                    buy(item: item)
+                                }
                             }
+                            .padding()
+                            .background(Color.black.opacity(0.5))
+                            .cornerRadius(8)
                         }
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(8)
                     }
+                    .padding()
                 }
-                .padding()
+                // Optionally, you could add a bottom bar here if desired.
             }
+            .padding()
         }
         .background(Color.black.ignoresSafeArea())
     }
@@ -55,5 +57,13 @@ struct ShopView: View {
             currencyModel.balance -= item.price
             shopModel.addPurchase(item: item)
         }
+    }
+}
+
+struct ShopView_Previews: PreviewProvider {
+    static var previews: some View {
+        ShopView(currentView: .constant("Shop"))
+            .environmentObject(CurrencyModel())
+            .environmentObject(ShopModel())
     }
 }
