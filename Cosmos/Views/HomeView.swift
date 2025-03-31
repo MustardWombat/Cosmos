@@ -14,29 +14,29 @@ struct HomeView: View {
             // 1) Black background fills the entire screen.
             Color.black
                 .ignoresSafeArea()
-                .zIndex(0)
-            
+                .zIndex(0) // Background Layer
+                .overlay(
+                    Text("") // Spacer overlay to force layout if needed
+                )
+                // MARK: - BLACK BACKGROUND
+
             // 2) Starry overlay on top of the black background.
             StarOverlay(starCount: 50)
                 .zIndex(1)
-            
+
             // 3) Main content.
             NavigationStack(path: $path) {
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Earth image (ensure "planet01" exists in Assets).
                         Image("planet01")
                             .resizable()
                             .scaledToFit()
                             .frame(height: 200)
                             .zIndex(9)
-                        
-                        // Weekly progress chart for the first category.
-                        // If there is no category, pass a dummy UUID so the chart still appears.
-                        WeeklyProgressChart(categoryID: categoriesVM.categories.first?.id ?? UUID())
+
+                        WeeklyProgressChart()
                             .environmentObject(categoriesVM)
-                        
-                        // Population & resources info.
+
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Population: \(civModel.population)")
                                 .foregroundColor(.white)
@@ -46,8 +46,7 @@ struct HomeView: View {
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(10)
-                        
-                        // Purchases section.
+
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Your Purchases")
                                 .font(.title2)
@@ -72,24 +71,24 @@ struct HomeView: View {
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(10)
-                        
+
                         Spacer(minLength: 20)
                     }
-                    // Apply top, left, and right padding.
                     .padding(EdgeInsets(top: 80, leading: 20, bottom: 0, trailing: 20))
                     .frame(maxWidth: .infinity)
+                    .background(Color.black) // Background Color
                 }
-                // Hide the default ScrollView background (iOS 16+).
                 .scrollContentBackground(.hidden)
                 .navigationBarBackButtonHidden(true)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.clear)
+            .background(Color.black)
             .zIndex(2)
         }
+        .background(Color.black)
+
         .ignoresSafeArea()
         .onAppear {
-            // Start simulation timer to update population/resources.
             simTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
                 civModel.simulate()
             }
@@ -99,6 +98,7 @@ struct HomeView: View {
         }
     }
 }
+
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {

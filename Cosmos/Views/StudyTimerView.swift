@@ -1,74 +1,102 @@
 import SwiftUI
 
 struct StudyTimerView: View {
-    @EnvironmentObject var timerModel: StudyTimerModel      // Timer and rewards management
-    @EnvironmentObject var miningModel: MiningModel            // For mining rewards, if needed
-    @EnvironmentObject var categoriesVM: CategoriesViewModel   // Manages study topics (categories)
-    @Environment(\.scenePhase) var scenePhase                 // App lifecycle state
+    @EnvironmentObject var timerModel: StudyTimerModel
+    @EnvironmentObject var miningModel: MiningModel
+    @EnvironmentObject var categoriesVM: CategoriesViewModel
+    @Environment(\.scenePhase) var scenePhase
 
-    // Track the currently selected study topic.
-    @State private var selectedTopic: Category? = nil
-    // Text input for creating a new study topic.
+    @State private var selectedTopic: Category? = nil {
+        didSet {
+            categoriesVM.saveSelectedTopicID(selectedTopic?.id)
+        }
+    }
+
     @State private var newTopicName: String = ""
 
     var body: some View {
         ZStack {
-            // Background: black with starry overlay.
-            Color.black
-                .ignoresSafeArea()
+            Color.black.ignoresSafeArea()
             StarOverlay(starCount: 50)
-            
+
             VStack(spacing: 20) {
                 Text("Focus Timer")
                     .font(.largeTitle)
                     .bold()
-                
-                // If topics exist, let the user select one.
-                if !categoriesVM.categories.isEmpty {
-                    Picker("Select Study Topic", selection: $selectedTopic) {
-                        ForEach(categoriesVM.categories) { category in
-                            Text(category.name).tag(category as Category?)
+
+                // MARK: - Topic Selector List
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Select a Study Topic:")
+                        .font(.headline)
+                        .foregroundColor(.white)
+
+                    ScrollView {
+                        LazyVStack(spacing: 10) {
+                            ForEach(categoriesVM.categories) { category in
+                                Button(action: {
+                                    selectedTopic = category
+                                }) {
+                                    HStack {
+                                        Circle()
+                                            .fill(category.displayColor)
+                                            .frame(width: 12, height: 12)
+
+                                        Text(category.name)
+                                            .foregroundColor(.white)
+                                            .padding(.leading, 5)
+
+                                        Spacer()
+
+                                        if selectedTopic?.id == category.id {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(.green)
+                                        }
+                                    }
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(selectedTopic?.id == category.id ? Color.green : Color.gray, lineWidth: 2)
+                                    )
+                                }
+                            }
+
+                            // Add new topic inline
+                            HStack {
+                                TextField("New Topic", text: $newTopicName)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                Button("Add") {
+                                    let trimmed = newTopicName.trimmingCharacters(in: .whitespaces)
+                                    guard !trimmed.isEmpty else { return }
+                                    categoriesVM.addCategory(name: trimmed)
+                                    selectedTopic = categoriesVM.categories.last
+                                    newTopicName = ""
+                                }
+                                .disabled(newTopicName.trimmingCharacters(in: .whitespaces).isEmpty)
+                            }
+                            .padding(.top)
                         }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                    .foregroundColor(.white)
-                } else {
-                    Text("No topics available. Create one below.")
-                        .foregroundColor(.gray)
+                    .frame(height: 200)
+                    .padding(.horizontal)
+                    .background(Color.black.opacity(0.3))
+                    .cornerRadius(12)
                 }
-                
-                // New topic creation.
-                HStack {
-                    TextField("Enter new topic", text: $newTopicName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    Button("Add") {
-                        let trimmed = newTopicName.trimmingCharacters(in: .whitespaces)
-                        guard !trimmed.isEmpty else { return }
-                        categoriesVM.addCategory(name: trimmed, weeklyGoalMinutes: 0)
-                        // Set the new topic as the selected topic.
-                        selectedTopic = categoriesVM.categories.last
-                        newTopicName = ""
-                    }
-                    .disabled(newTopicName.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-                .padding(.horizontal)
-                
-                // Timer display.
+
+                // MARK: - Timer display
                 Text(formatTime(timerModel.timeRemaining))
                     .font(.system(size: 64, weight: .bold, design: .monospaced))
                     .foregroundColor(timerModel.isTimerRunning ? .green : .red)
-                
-                // Reward display.
+
+                // MARK: - Reward display
                 if let reward = timerModel.reward {
                     Text("You earned: \(reward)")
                         .font(.headline)
                         .foregroundColor(.orange)
                 }
-                
-                // Control buttons.
+
+                // MARK: - Control buttons
                 HStack {
                     Button(action: {
-                        // Optionally, assign the selected topic to the timer model if needed.
                         timerModel.startTimer(for: 25 * 60)
                     }) {
                         Text("Add 25 Min")
@@ -78,15 +106,19 @@ struct StudyTimerView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-                    
+
                     Button(action: {
-                        timerModel.stopTimer()
-                        // Log the studied minutes into the selected topic.
-                        // 'studiedMinutes' should compute (initialDuration - timeRemaining) / 60.
+                        print("🔴 Land button pressed")
+
                         if let topic = selectedTopic {
                             let minutesStudied = timerModel.studiedMinutes
+                            print("⏱ Studied minutes: \(minutesStudied) for topic: \(topic.name)")
                             categoriesVM.logStudyTime(categoryID: topic.id, date: Date(), minutes: minutesStudied)
+                        } else {
+                            print("⚠️ No topic selected!")
                         }
+
+                        timerModel.stopTimer()
                     }) {
                         Text("Land")
                             .padding()
@@ -98,26 +130,29 @@ struct StudyTimerView: View {
                     .disabled(!timerModel.isTimerRunning)
                 }
                 .padding()
-                
+
                 Spacer()
             }
             .padding()
-            // Refresh the timer when the app becomes active.
+            .onAppear {
+                if selectedTopic == nil {
+                    selectedTopic = categoriesVM.loadSelectedTopic()
+                }
+            }
             .onChange(of: scenePhase) { newPhase in
                 if newPhase == .active {
                     timerModel.updateTimeRemaining()
                 }
             }
-            // When a reward is earned, add a new planet to the mining list.
             .onChange(of: timerModel.reward) { newReward in
                 guard let reward = newReward else { return }
                 var newPlanet: Planet?
                 switch reward {
-                case "🌟 Rare Planet":
+                case "Rare Planet":
                     newPlanet = Planet(name: "Rare Planet", baseMiningTime: 120, miningReward: 50)
-                case "🌕 Common Planet":
+                case "Common Planet":
                     newPlanet = Planet(name: "Common Planet", baseMiningTime: 90, miningReward: 20)
-                case "🌑 Tiny Asteroid":
+                case "Tiny Asteroid":
                     newPlanet = Planet(name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5)
                 default:
                     break
@@ -129,10 +164,9 @@ struct StudyTimerView: View {
                 timerModel.reward = nil
             }
         }
-        .ignoresSafeArea()
     }
-    
-    // Utility to format time in MM:SS.
+
+    // Utility to format time in MM:SS
     func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let seconds = seconds % 60

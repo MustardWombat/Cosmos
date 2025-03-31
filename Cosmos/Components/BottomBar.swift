@@ -42,6 +42,6 @@ struct BottomBar: View {
         }
         .padding()                    // General padding on all sides
         .padding(.bottom, 40)         // Additional padding at the bottom
-        .background(Color.gray.opacity(0.2))
+        .background(Color.black)
     }
 }

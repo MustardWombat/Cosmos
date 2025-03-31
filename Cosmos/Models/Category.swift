@@ -4,6 +4,7 @@
 //
 //  Created by James Williams on 3/25/25.
 //
+
 import SwiftUI
 import Foundation
 
@@ -19,12 +20,9 @@ struct Category: Identifiable, Codable, Hashable {
         self.weeklyGoalMinutes = weeklyGoalMinutes
         self.dailyLogs = []
     }
-}
-extension Category {
+
     /// Returns a Color determined by the hash of the category's name.
     var displayColor: Color {
-        // A simple method: compute a color from the hash value.
-        // (This is just an example; you might want a more controlled palette.)
         let hash = abs(name.hashValue)
         let red = Double((hash >> 16) & 0xFF) / 255.0
         let green = Double((hash >> 8) & 0xFF) / 255.0
@@ -33,11 +31,9 @@ extension Category {
     }
 }
 
-
 // A simple struct for logging minutes studied on a given date.
 struct DailyLog: Identifiable, Codable, Hashable {
     let id = UUID()
     var date: Date
     var minutes: Int
 }
-
