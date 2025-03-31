@@ -6,70 +6,67 @@ struct PlanetView: View {
     @EnvironmentObject var currencyModel: CurrencyModel
     @EnvironmentObject var timerModel: StudyTimerModel
     @Environment(\.scenePhase) var scenePhase
-    
+
     var body: some View {
         ZStack {
-            // Starry background overlay (drawn above the black background).
+            // Starry background overlay
             StarOverlay(starCount: 50)
-            
-            VStack(spacing: 0) {
-                // Display coin counter component.
+
+            VStack(spacing: 20) {
                 CoinDisplay()
                     .environmentObject(currencyModel)
-                
-                // List available planets from MiningModel.
-                ForEach(miningModel.availablePlanets) { planet in
-                    HStack {
-                        Text(planet.name)
-                            .foregroundColor(.white)
-                        Spacer()
-                        Text("Reward: \(planet.miningReward)")
-                            .foregroundColor(.white)
-                        
-                        if miningModel.currentMiningPlanet?.id == planet.id {
-                            Text("Mining... \(miningModel.remainingTime)s")
-                                .foregroundColor(.green)
-                        } else {
-                            Button("Mine") {
-                                // Start mining using the current focus mode status.
-                                miningModel.startMining(planet: planet, inFocusMode: timerModel.isTimerRunning)
+
+                Text("Mining Bay")
+                    .font(.title)
+                    .foregroundColor(.white)
+
+                ScrollView {
+                    VStack(spacing: 10) {
+                        ForEach(miningModel.availablePlanets) { planet in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(planet.name)
+                                        .foregroundColor(.white)
+                                        .font(.headline)
+                                    Text("Reward: \(planet.miningReward)")
+                                        .foregroundColor(.gray)
+                                        .font(.subheadline)
+                                }
+
+                                Spacer()
+
+                                if miningModel.currentMiningPlanet?.id == planet.id {
+                                    let minutes = miningModel.remainingTime / 60
+                                    let seconds = miningModel.remainingTime % 60
+                                    Text("Mining... \(String(format: "%02d:%02d", minutes, seconds))")
+                                        .foregroundColor(.green)
+                                } else {
+                                    Button("Mine") {
+                                        miningModel.startMining(planet: planet, inFocusMode: timerModel.isTimerRunning)
+                                    }
+                                    .disabled(miningModel.currentMiningPlanet != nil)
+                                }
                             }
-                            .disabled(miningModel.currentMiningPlanet != nil)
+                            .padding()
+                            .background(Color.black.opacity(0.3))
+                            .cornerRadius(10)
                         }
                     }
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.black)
-                
-                if miningModel.currentMiningPlanet != nil {
-                    Button("Cancel Mining") {
-                        miningModel.cancelMining()
-                    }
-                    .padding()
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                
+
                 Spacer()
             }
-            .padding(EdgeInsets(top: 80, leading: 20, bottom: 0, trailing: 20))
+            .padding(EdgeInsets(top: 80, leading: 20, bottom: 20, trailing: 20))
         }
         .ignoresSafeArea()
+        .background(Color.black)
+        .onAppear {
+            miningModel.restoreSavedMiningState()
+        }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 miningModel.refreshMiningProgress()
             }
         }
-        .background(Color.black) // This sets the background behind the ZStack.
-    }
-}
-
-struct PlanetView_Previews: PreviewProvider {
-    static var previews: some View {
-        PlanetView(currentView: .constant("PlanetView"))
-            .environmentObject(CurrencyModel())
-            .environmentObject(StudyTimerModel())
-            .environmentObject(MiningModel())
     }
 }
