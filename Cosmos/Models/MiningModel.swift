@@ -5,9 +5,9 @@ import Combine
 struct Planet: Identifiable, Codable, Equatable {
     let id: UUID
     let name: String
-    let baseMiningTime: Int
-    let miningReward: Int
-    var miningStartDate: Date? = nil
+    let baseMiningTime: Int    // in seconds
+    let miningReward: Int      // coins earned when mining completes
+    var miningStartDate: Date? = nil  // when mining started
 
     init(id: UUID = UUID(), name: String, baseMiningTime: Int, miningReward: Int, miningStartDate: Date? = nil) {
         self.id = id
@@ -23,13 +23,13 @@ class MiningModel: ObservableObject {
         Planet(
             id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
             name: "Starter Planet",
-            baseMiningTime: 1000,
+            baseMiningTime: 10,
             miningReward: 100
         )
     ]
-
+    
     @Published var currentMiningPlanet: Planet? = nil
-    @Published var remainingTime: Int = 0
+    @Published var miningProgress: Double = 0.0   // 0.0 to 1.0
     @Published var speedMultiplier: Int = 1
 
     private var miningTimer: Timer?
@@ -42,56 +42,55 @@ class MiningModel: ObservableObject {
 
     func startMining(planet: Planet, inFocusMode: Bool) {
         guard currentMiningPlanet == nil else { return }
-
+        
         var updatedPlanet = planet
         updatedPlanet.miningStartDate = Date()
-
-        // Remove from list so we don’t display duplicate
+        
+        // Remove from list so we don’t show a duplicate.
         availablePlanets.removeAll { $0.id == planet.id }
-
+        
         currentMiningPlanet = updatedPlanet
         speedMultiplier = inFocusMode ? 2 : 1
         targetMiningDuration = updatedPlanet.baseMiningTime
-        remainingTime = targetMiningDuration
         miningStartTime = updatedPlanet.miningStartDate
-
+        miningProgress = 0.0
+        
         saveCurrentMiningState()
         startMiningUITimer()
     }
-
+    
     private func startMiningUITimer() {
         miningTimer?.invalidate()
         miningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             self?.updateMiningProgress()
         }
     }
-
+    
     // MARK: - Update Progress
-
+    
     func updateMiningProgress() {
-        guard let start = miningStartTime, let planet = currentMiningPlanet else { return }
-
-        let elapsed = Int(Date().timeIntervalSince(start)) * speedMultiplier
-        let newRemaining = max(0, targetMiningDuration - elapsed)
-        remainingTime = newRemaining
-
-        if remainingTime <= 0 {
+        guard let start = miningStartTime, currentMiningPlanet != nil else { return }
+        let elapsed = Date().timeIntervalSince(start) * Double(speedMultiplier)
+        let progress = elapsed / Double(targetMiningDuration)
+        miningProgress = min(progress, 1.0)
+        
+        if miningProgress >= 1.0 {
             finishMining()
         }
     }
-
+    
     func refreshMiningProgress() {
         if currentMiningPlanet != nil {
             updateMiningProgress()
         }
     }
-
+    
     // MARK: - Resume on Launch
-
+    
     func resumeMiningIfNeeded() {
         restoreSavedMiningState()
     }
-
+    
     func restoreSavedMiningState() {
         guard let data = UserDefaults.standard.data(forKey: savedMiningKey) else { return }
         do {
@@ -105,7 +104,7 @@ class MiningModel: ObservableObject {
             print("❌ Failed to load mining state: \(error)")
         }
     }
-
+    
     private func saveCurrentMiningState() {
         guard let planet = currentMiningPlanet else { return }
         do {
@@ -115,32 +114,55 @@ class MiningModel: ObservableObject {
             print("❌ Failed to save mining state: \(error)")
         }
     }
-
+    
     private func clearSavedMiningState() {
         UserDefaults.standard.removeObject(forKey: savedMiningKey)
     }
-
+    
     // MARK: - Finish Mining
-
+    
     func finishMining() {
         if let planet = currentMiningPlanet {
             print("⛏️ Finished mining \(planet.name)! Awarding \(planet.miningReward) coins.")
-            availablePlanets.append(planet) // Re-add the planet after mining
+            // Re-add the planet after mining completes.
+            availablePlanets.append(planet)
         }
         clearSavedMiningState()
         resetMiningState()
     }
-
+    
+    // We now disable cancellation per your request.
     func cancelMining() {
-        // Disabled intentionally
+        // Not allowed.
     }
-
+    
     private func resetMiningState() {
         miningTimer?.invalidate()
         miningTimer = nil
         currentMiningPlanet = nil
         miningStartTime = nil
         targetMiningDuration = 0
-        remainingTime = 0
+        miningProgress = 0.0
+    }
+}
+extension MiningModel {
+    func addPlanet(for reward: String) {
+        var newPlanet: Planet?
+        
+        switch reward {
+        case "🌟 Rare Planet":
+            newPlanet = Planet(name: "Rare Planet", baseMiningTime: 120, miningReward: 50)
+        case "🌕 Common Planet":
+            newPlanet = Planet(name: "Common Planet", baseMiningTime: 90, miningReward: 20)
+        case "🌑 Tiny Asteroid":
+            newPlanet = Planet(name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5)
+        default:
+            break
+        }
+        
+        if let planet = newPlanet {
+            availablePlanets.append(planet)
+            print("Added new planet: \(planet.name)")
+        }
     }
 }

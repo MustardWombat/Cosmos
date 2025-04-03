@@ -4,6 +4,8 @@
 //
 //  Created by James Williams on 3/24/25.
 //
+//  The "CoinDisplay" component is responsible for the logic
+//  Behind displaying coins which can be used throughout the program
 
 import SwiftUI
 

@@ -4,6 +4,9 @@
 //
 //  Created by James Williams on 3/24/25.
 //
+//  The "FocusCheckView" View is responsible for the logic
+//  Behind determining if the user was "focused"
+//  (currently has no implementation)
 
 import SwiftUI
 

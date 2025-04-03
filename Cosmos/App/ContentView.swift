@@ -21,6 +21,8 @@ struct ContentView_Previews: PreviewProvider {
             .environmentObject(CivilizationModel())
             .environmentObject(MiningModel())
             .environmentObject(CategoriesViewModel())
+            .environmentObject(XPModel())
+
 
     }
 }

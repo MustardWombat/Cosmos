@@ -6,20 +6,56 @@ struct PlanetView: View {
     @EnvironmentObject var currencyModel: CurrencyModel
     @EnvironmentObject var timerModel: StudyTimerModel
     @Environment(\.scenePhase) var scenePhase
+    
+    @State private var showMineConfirmation: Bool = false
+    @State private var planetToMine: Planet? = nil
 
     var body: some View {
         ZStack {
             // Starry background overlay
             StarOverlay(starCount: 50)
-
+            
             VStack(spacing: 20) {
                 CoinDisplay()
                     .environmentObject(currencyModel)
-
+                
                 Text("Mining Bay")
                     .font(.title)
                     .foregroundColor(.white)
-
+                
+                // If a planet is currently being mined, show it separately.
+                if let current = miningModel.currentMiningPlanet {
+                    VStack(spacing: 10) {
+                        Text("Currently Mining:")
+                            .foregroundColor(.white)
+                            .font(.headline)
+                        
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(current.name)
+                                    .foregroundColor(.white)
+                                    .font(.headline)
+                                Text("Reward: \(current.miningReward)")
+                                    .foregroundColor(.gray)
+                                    .font(.subheadline)
+                            }
+                            Spacer()
+                            // Display a large progress bar.
+                            VStack {
+                                ProgressView(value: miningModel.miningProgress)
+                                    .progressViewStyle(LinearProgressViewStyle(tint: .green))
+                                    .frame(width: 200)
+                                Text("Mining... \(Int(miningModel.miningProgress * 100))%")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding()
+                        .background(Color.black.opacity(0.3))
+                        .cornerRadius(10)
+                    }
+                }
+                
+                // List of available planets that are not currently being mined.
                 ScrollView {
                     VStack(spacing: 10) {
                         ForEach(miningModel.availablePlanets) { planet in
@@ -32,20 +68,12 @@ struct PlanetView: View {
                                         .foregroundColor(.gray)
                                         .font(.subheadline)
                                 }
-
                                 Spacer()
-
-                                if miningModel.currentMiningPlanet?.id == planet.id {
-                                    let minutes = miningModel.remainingTime / 60
-                                    let seconds = miningModel.remainingTime % 60
-                                    Text("Mining... \(String(format: "%02d:%02d", minutes, seconds))")
-                                        .foregroundColor(.green)
-                                } else {
-                                    Button("Mine") {
-                                        miningModel.startMining(planet: planet, inFocusMode: timerModel.isTimerRunning)
-                                    }
-                                    .disabled(miningModel.currentMiningPlanet != nil)
+                                Button("Mine") {
+                                    planetToMine = planet
+                                    showMineConfirmation = true
                                 }
+                                .disabled(miningModel.currentMiningPlanet != nil)
                             }
                             .padding()
                             .background(Color.black.opacity(0.3))
@@ -53,7 +81,7 @@ struct PlanetView: View {
                         }
                     }
                 }
-
+                
                 Spacer()
             }
             .padding(EdgeInsets(top: 80, leading: 20, bottom: 20, trailing: 20))
@@ -68,5 +96,26 @@ struct PlanetView: View {
                 miningModel.refreshMiningProgress()
             }
         }
+        .alert(isPresented: $showMineConfirmation) {
+            Alert(
+                title: Text("Confirm Mining"),
+                message: Text("Do you want to mine \(planetToMine?.name ?? "this planet")?"),
+                primaryButton: .default(Text("Mine")) {
+                    if let planet = planetToMine {
+                        miningModel.startMining(planet: planet, inFocusMode: timerModel.isTimerRunning)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+    }
+}
+
+struct PlanetView_Previews: PreviewProvider {
+    static var previews: some View {
+        PlanetView(currentView: .constant("PlanetView"))
+            .environmentObject(CurrencyModel())
+            .environmentObject(StudyTimerModel())
+            .environmentObject(MiningModel())
     }
 }

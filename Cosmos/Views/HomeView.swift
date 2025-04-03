@@ -6,24 +6,21 @@ struct HomeView: View {
     @State private var simTimer: Timer? = nil
 
     @EnvironmentObject var shopModel: ShopModel
-    @EnvironmentObject var civModel: CivilizationModel
     @EnvironmentObject var categoriesVM: CategoriesViewModel
+    @EnvironmentObject var xpModel: XPModel
 
     var body: some View {
         ZStack {
             // 1) Black background fills the entire screen.
             Color.black
                 .ignoresSafeArea()
-                .zIndex(0) // Background Layer
-                .overlay(
-                    Text("") // Spacer overlay to force layout if needed
-                )
-                // MARK: - BLACK BACKGROUND
-
+                .zIndex(0)
+                .overlay(Text("")) // Spacer overlay if needed
+            
             // 2) Starry overlay on top of the black background.
             StarOverlay(starCount: 50)
-                .zIndex(1)
-
+                .zIndex(999)
+            
             // 3) Main content.
             NavigationStack(path: $path) {
                 ScrollView {
@@ -33,20 +30,23 @@ struct HomeView: View {
                             .scaledToFit()
                             .frame(height: 200)
                             .zIndex(9)
-
+                        
                         WeeklyProgressChart()
                             .environmentObject(categoriesVM)
-
+                        
+                        // XP / Level system replaces population and resources.
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Population: \(civModel.population)")
+                            Text("Level: \(xpModel.level)")
                                 .foregroundColor(.white)
-                            Text("Resources: \(civModel.resources)")
+                            ProgressView(value: Double(xpModel.xp), total: Double(xpModel.xpForNextLevel))
+                                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                            Text("\(xpModel.xp) / \(xpModel.xpForNextLevel) XP")
                                 .foregroundColor(.white)
                         }
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(10)
-
+                        
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Your Purchases")
                                 .font(.title2)
@@ -71,12 +71,12 @@ struct HomeView: View {
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(10)
-
+                        
                         Spacer(minLength: 20)
                     }
                     .padding(EdgeInsets(top: 80, leading: 20, bottom: 0, trailing: 20))
                     .frame(maxWidth: .infinity)
-                    .background(Color.black) // Background Color
+                    .background(Color.black)
                 }
                 .scrollContentBackground(.hidden)
                 .navigationBarBackButtonHidden(true)
@@ -86,11 +86,12 @@ struct HomeView: View {
             .zIndex(2)
         }
         .background(Color.black)
-
         .ignoresSafeArea()
         .onAppear {
+            // You might simulate XP gain here if desired.
             simTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                civModel.simulate()
+                // For example, simulate passive XP gain:
+                // xpModel.addXP(10)
             }
         }
         .onDisappear {
@@ -99,12 +100,11 @@ struct HomeView: View {
     }
 }
 
-
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(currentView: .constant("Home"))
             .environmentObject(ShopModel())
-            .environmentObject(CivilizationModel())
             .environmentObject(CategoriesViewModel())
+            .environmentObject(XPModel())
     }
 }

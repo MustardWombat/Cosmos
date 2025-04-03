@@ -21,6 +21,9 @@ class StudyTimerModel: ObservableObject {
         didSet { saveData() }
     }
     
+    // Inject XPModel for leveling up
+    var xpModel: XPModel?
+    
     private var timer: Timer?
     
     #if os(iOS)
@@ -31,7 +34,9 @@ class StudyTimerModel: ObservableObject {
     private var initialDuration: Int = 0
     private let studyDataKey = "StudyTimerModelData"
     
-    init() {
+    // New initializer that accepts an optional XPModel
+    init(xpModel: XPModel? = nil) {
+        self.xpModel = xpModel
         loadData()
     }
     
@@ -80,6 +85,8 @@ class StudyTimerModel: ObservableObject {
         isTimerRunning = false
         if studiedTime >= 300 {
             calculateReward()
+            // Use the injected XPModel to add XP (level up)
+            xpModel?.addXP(120)
         }
         endBackgroundTask()
     }
@@ -151,9 +158,10 @@ class StudyTimerModel: ObservableObject {
         }
     }
 }
+
 extension StudyTimerModel {
     var studiedMinutes: Int {
-        if let _ = timerStartDate { // timerStartDate is private; you may need to adjust visibility
+        if let _ = timerStartDate {
             return (initialDuration - timeRemaining) / 60
         }
         return 0

@@ -108,17 +108,16 @@ struct StudyTimerView: View {
                     }
 
                     Button(action: {
-                        print("🔴 Land button pressed")
-
                         if let topic = selectedTopic {
                             let minutesStudied = timerModel.studiedMinutes
-                            print("⏱ Studied minutes: \(minutesStudied) for topic: \(topic.name)")
                             categoriesVM.logStudyTime(categoryID: topic.id, date: Date(), minutes: minutesStudied)
-                        } else {
-                            print("⚠️ No topic selected!")
                         }
-
                         timerModel.stopTimer()
+                        
+                        // If a reward was earned, add a planet based on that reward.
+                        if let reward = timerModel.reward {
+                            miningModel.addPlanet(for: reward)
+                        }
                     }) {
                         Text("Land")
                             .padding()
@@ -128,6 +127,7 @@ struct StudyTimerView: View {
                             .cornerRadius(10)
                     }
                     .disabled(!timerModel.isTimerRunning)
+
                 }
                 .padding()
 

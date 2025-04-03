@@ -1,3 +1,12 @@
+//
+//  StarOverlay.swift
+//  Cosmos
+//
+//  Created by James Williams on 3/24/25.
+//
+//  The "CategoriesViewModel" component is responsible for the logic
+//  Behind the storage of "categories" the user can create
+
 import Foundation
 import SwiftUI
 

@@ -1,3 +1,11 @@
+//  BottomBar.swift
+//  Cosmos
+//
+//  Created by James Williams on 3/21/25.
+//
+//  The "BottomBar" component is responsible for the logic
+//  behind the app navigator on the bottom of the user's screen
+
 import SwiftUI
 
 struct BottomBarButton: View {
@@ -28,6 +36,7 @@ struct BottomBarButton: View {
 struct BottomBar: View {
     @Binding var currentView: String
     
+    // functionality and icons
     var body: some View {
         HStack {
             Spacer()
@@ -42,6 +51,6 @@ struct BottomBar: View {
         }
         .padding()                    // General padding on all sides
         .padding(.bottom, 40)         // Additional padding at the bottom
-        .background(Color.black)
+        .background(Color.black)      // Determines the background color
     }
 }
