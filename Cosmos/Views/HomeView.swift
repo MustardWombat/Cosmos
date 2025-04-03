@@ -1,4 +1,22 @@
 import SwiftUI
+import Charts
+
+// SpinningPlanetView shows the Earth sprite rotating continuously.
+struct SpinningPlanetView: View {
+    @State private var rotation: Angle = .zero
+
+    var body: some View {
+        Image("planet01")
+            .resizable()
+            .frame(width: 300, height: 300)
+            .rotationEffect(rotation)
+            .onAppear {
+                withAnimation(Animation.linear(duration: 20).repeatForever(autoreverses: false)) {
+                    rotation = .degrees(360)
+                }
+            }
+    }
+}
 
 struct HomeView: View {
     @Binding var currentView: String
@@ -25,28 +43,16 @@ struct HomeView: View {
             NavigationStack(path: $path) {
                 ScrollView {
                     VStack(spacing: 20) {
-                        Image("planet01")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
-                            .zIndex(9)
+                        XPDisplayView()
+                        // Display the spinning Earth sprite.
+                        SpinningPlanetView()
                         
                         WeeklyProgressChart()
                             .environmentObject(categoriesVM)
                         
-                        // XP / Level system replaces population and resources.
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Level: \(xpModel.level)")
-                                .foregroundColor(.white)
-                            ProgressView(value: Double(xpModel.xp), total: Double(xpModel.xpForNextLevel))
-                                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                            Text("\(xpModel.xp) / \(xpModel.xpForNextLevel) XP")
-                                .foregroundColor(.white)
-                        }
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(10)
+                       
                         
+                        // Purchases section.
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Your Purchases")
                                 .font(.title2)
@@ -88,9 +94,8 @@ struct HomeView: View {
         .background(Color.black)
         .ignoresSafeArea()
         .onAppear {
-            // You might simulate XP gain here if desired.
             simTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                // For example, simulate passive XP gain:
+                // For example, simulate passive XP gain if desired:
                 // xpModel.addXP(10)
             }
         }

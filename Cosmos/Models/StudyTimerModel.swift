@@ -83,10 +83,11 @@ class StudyTimerModel: ObservableObject {
         timer?.invalidate()
         timer = nil
         isTimerRunning = false
+        print("Adding \(studiedTime) XP")
+        xpModel?.addXP(studiedTime)
         if studiedTime >= 300 {
             calculateReward()
             // Use the injected XPModel to add XP (level up)
-            xpModel?.addXP(120)
         }
         endBackgroundTask()
     }
@@ -95,11 +96,11 @@ class StudyTimerModel: ObservableObject {
         let studiedTime = initialDuration - timeRemaining
         totalTimeStudied += studiedTime
         if studiedTime >= 1800 {
-            reward = "🌟 Rare Planet"
+            reward = "Rare Planet"
         } else if studiedTime >= 900 {
-            reward = "🌕 Common Planet"
+            reward = "Common Planet"
         } else {
-            reward = "🌑 Tiny Asteroid"
+            reward = "Tiny Asteroid"
         }
         if let earnedReward = reward {
             earnedRewards.append(earnedReward)

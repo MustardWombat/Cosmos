@@ -177,7 +177,7 @@ struct StudyTimerView: View {
 struct StudyTimerView_Previews: PreviewProvider {
     static var previews: some View {
         StudyTimerView()
-            .environmentObject(StudyTimerModel())
+            .environmentObject(StudyTimerModel(xpModel: XPModel()))
             .environmentObject(MiningModel())
             .environmentObject(CategoriesViewModel())
     }

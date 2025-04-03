@@ -18,8 +18,9 @@ class XPModel: ObservableObject {
     /// Adds XP to the system, applying the upgrade multiplier.
     func addXP(_ amount: Int) {
         // Apply the multiplier to the XP gain
-        let effectiveXP = Int(Double(amount) * upgradeMultiplier)
+            let effectiveXP = Int(Double(amount) * upgradeMultiplier)
         xp += effectiveXP
+        print("Current XP:", xp)
         checkForLevelUp()
     }
     
@@ -52,5 +53,22 @@ class XPModel: ObservableObject {
         level = 1
         xpForNextLevel = 100
         upgradeMultiplier = 1.0
+    }
+}
+struct XPDisplayView: View {
+    @EnvironmentObject var xpModel: XPModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Level: \(xpModel.level)")
+                .foregroundColor(.white)
+            ProgressView(value: Double(xpModel.xp), total: Double(xpModel.xpForNextLevel))
+                .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+            Text("\(xpModel.xp) / \(xpModel.xpForNextLevel) XP")
+                .foregroundColor(.white)
+        }
+        .padding()
+        .background(Color.black.opacity(0.5))
+        .cornerRadius(10)
     }
 }
