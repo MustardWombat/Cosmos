@@ -1,4 +1,6 @@
 import SwiftUI
+import WidgetKit
+
 
 struct CosmosAppView: View {
     @StateObject var xpModel: XPModel
@@ -46,3 +48,5 @@ struct CosmosApp: App {
         }
     }
 }
+
+

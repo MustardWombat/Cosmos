@@ -6,7 +6,21 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4F95C6562DA30C7F00839484 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F95C6552DA30C7F00839484 /* WidgetKit.framework */; };
+		4F95C6582DA30C7F00839484 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F95C6572DA30C7F00839484 /* SwiftUI.framework */; };
+		4F95C6692DA30C8100839484 /* StudyTimerWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4F95C6532DA30C7F00839484 /* StudyTimerWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4F95C6792DA316B100839484 /* Cosmos.entitlements in Sources */ = {isa = PBXBuildFile; fileRef = 4F95C6782DA316AA00839484 /* Cosmos.entitlements */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		4F95C6672DA30C8100839484 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FEA9AF42D8E205B00D8B37B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F95C6522DA30C7F00839484;
+			remoteInfo = StudyTimerWidgetExtensionExtension;
+		};
 		4FEA9B0E2D8E205D00D8B37B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FEA9AF42D8E205B00D8B37B /* Project object */;
@@ -23,13 +37,46 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4F95C66A2DA30C8100839484 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4F95C6692DA30C8100839484 /* StudyTimerWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		4F95C6532DA30C7F00839484 /* StudyTimerWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = StudyTimerWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F95C6552DA30C7F00839484 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4F95C6572DA30C7F00839484 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4F95C6772DA311D300839484 /* StudyTimerWidgetExtensionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StudyTimerWidgetExtensionExtension.entitlements; sourceTree = "<group>"; };
+		4F95C6782DA316AA00839484 /* Cosmos.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Cosmos.entitlements; sourceTree = "<group>"; };
 		4FEA9AFC2D8E205B00D8B37B /* Cosmos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cosmos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FEA9B0D2D8E205D00D8B37B /* CosmosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CosmosTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FEA9B172D8E205D00D8B37B /* CosmosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CosmosUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		4F95C66E2DA30C8100839484 /* Exceptions for "StudyTimerWidgetExtension" folder in "StudyTimerWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4F95C6522DA30C7F00839484 /* StudyTimerWidgetExtensionExtension */;
+		};
+		4F95C6752DA30F4A00839484 /* Exceptions for "Cosmos" folder in "StudyTimerWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Shared/StudyTimerAttributes.swift,
+			);
+			target = 4F95C6522DA30C7F00839484 /* StudyTimerWidgetExtensionExtension */;
+		};
 		4FB6D74F2D92335600EE1D10 /* Exceptions for "Cosmos" folder in "Cosmos" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -40,10 +87,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		4F95C6592DA30C7F00839484 /* StudyTimerWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4F95C66E2DA30C8100839484 /* Exceptions for "StudyTimerWidgetExtension" folder in "StudyTimerWidgetExtensionExtension" target */,
+			);
+			path = StudyTimerWidgetExtension;
+			sourceTree = "<group>";
+		};
 		4FEA9AFE2D8E205B00D8B37B /* Cosmos */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				4FB6D74F2D92335600EE1D10 /* Exceptions for "Cosmos" folder in "Cosmos" target */,
+				4F95C6752DA30F4A00839484 /* Exceptions for "Cosmos" folder in "StudyTimerWidgetExtensionExtension" target */,
 			);
 			path = Cosmos;
 			sourceTree = "<group>";
@@ -61,6 +117,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4F95C6502DA30C7F00839484 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F95C6582DA30C7F00839484 /* SwiftUI.framework in Frameworks */,
+				4F95C6562DA30C7F00839484 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FEA9AF92D8E205B00D8B37B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -85,12 +150,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F95C6542DA30C7F00839484 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4F95C6552DA30C7F00839484 /* WidgetKit.framework */,
+				4F95C6572DA30C7F00839484 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		4FEA9AF32D8E205B00D8B37B = {
 			isa = PBXGroup;
 			children = (
+				4F95C6782DA316AA00839484 /* Cosmos.entitlements */,
+				4F95C6772DA311D300839484 /* StudyTimerWidgetExtensionExtension.entitlements */,
 				4FEA9AFE2D8E205B00D8B37B /* Cosmos */,
 				4FEA9B102D8E205D00D8B37B /* CosmosTests */,
 				4FEA9B1A2D8E205D00D8B37B /* CosmosUITests */,
+				4F95C6592DA30C7F00839484 /* StudyTimerWidgetExtension */,
+				4F95C6542DA30C7F00839484 /* Frameworks */,
 				4FEA9AFD2D8E205B00D8B37B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,6 +179,7 @@
 				4FEA9AFC2D8E205B00D8B37B /* Cosmos.app */,
 				4FEA9B0D2D8E205D00D8B37B /* CosmosTests.xctest */,
 				4FEA9B172D8E205D00D8B37B /* CosmosUITests.xctest */,
+				4F95C6532DA30C7F00839484 /* StudyTimerWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +187,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4F95C6522DA30C7F00839484 /* StudyTimerWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F95C66D2DA30C8100839484 /* Build configuration list for PBXNativeTarget "StudyTimerWidgetExtensionExtension" */;
+			buildPhases = (
+				4F95C64F2DA30C7F00839484 /* Sources */,
+				4F95C6502DA30C7F00839484 /* Frameworks */,
+				4F95C6512DA30C7F00839484 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4F95C6592DA30C7F00839484 /* StudyTimerWidgetExtension */,
+			);
+			name = StudyTimerWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = StudyTimerWidgetExtensionExtension;
+			productReference = 4F95C6532DA30C7F00839484 /* StudyTimerWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		4FEA9AFB2D8E205B00D8B37B /* Cosmos */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FEA9B212D8E205D00D8B37B /* Build configuration list for PBXNativeTarget "Cosmos" */;
@@ -115,10 +216,12 @@
 				4FEA9AF82D8E205B00D8B37B /* Sources */,
 				4FEA9AF92D8E205B00D8B37B /* Frameworks */,
 				4FEA9AFA2D8E205B00D8B37B /* Resources */,
+				4F95C66A2DA30C8100839484 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4F95C6682DA30C8100839484 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4FEA9AFE2D8E205B00D8B37B /* Cosmos */,
@@ -186,6 +289,9 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					4F95C6522DA30C7F00839484 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					4FEA9AFB2D8E205B00D8B37B = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -216,11 +322,19 @@
 				4FEA9AFB2D8E205B00D8B37B /* Cosmos */,
 				4FEA9B0C2D8E205D00D8B37B /* CosmosTests */,
 				4FEA9B162D8E205D00D8B37B /* CosmosUITests */,
+				4F95C6522DA30C7F00839484 /* StudyTimerWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4F95C6512DA30C7F00839484 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FEA9AFA2D8E205B00D8B37B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -245,10 +359,18 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4F95C64F2DA30C7F00839484 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FEA9AF82D8E205B00D8B37B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F95C6792DA316B100839484 /* Cosmos.entitlements in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +391,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4F95C6682DA30C8100839484 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F95C6522DA30C7F00839484 /* StudyTimerWidgetExtensionExtension */;
+			targetProxy = 4F95C6672DA30C8100839484 /* PBXContainerItemProxy */;
+		};
 		4FEA9B0F2D8E205D00D8B37B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4FEA9AFB2D8E205B00D8B37B /* Cosmos */;
@@ -282,6 +409,67 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4F95C66B2DA30C8100839484 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = StudyTimerWidgetExtensionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T2QU3K3AV8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StudyTimerWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StudyTimerWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jameswilliams.Cosmos-.StudyTimerWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4F95C66C2DA30C8100839484 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = StudyTimerWidgetExtensionExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T2QU3K3AV8;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = StudyTimerWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = StudyTimerWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jameswilliams.Cosmos-.StudyTimerWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		4FEA9B1F2D8E205D00D8B37B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -420,7 +608,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
@@ -428,10 +616,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jameswilliams.Cosmos-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = 1;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Debug;
@@ -460,7 +649,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.2;
@@ -468,10 +657,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jameswilliams.Cosmos-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = 1;
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
 			name = Release;
@@ -569,6 +759,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4F95C66D2DA30C8100839484 /* Build configuration list for PBXNativeTarget "StudyTimerWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F95C66B2DA30C8100839484 /* Debug */,
+				4F95C66C2DA30C8100839484 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4FEA9AF72D8E205B00D8B37B /* Build configuration list for PBXProject "Cosmos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

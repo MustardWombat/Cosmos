@@ -13,6 +13,8 @@ struct StudyTimerView: View {
     }
 
     @State private var isShowingCategorySheet = false
+    @State private var showSessionEndedPopup = false
+
 
     var body: some View {
         ZStack {
@@ -119,6 +121,12 @@ struct StudyTimerView: View {
                     timerModel.reward = nil
                 }
             }
+            .onChange(of: timerModel.timeRemaining) { newValue in
+                if newValue == 0 && !timerModel.isTimerRunning {
+                    showSessionEndedPopup = true
+                }
+            }
+
             .sheet(isPresented: $isShowingCategorySheet) {
                 CategorySelectionSheet(
                     categories: categoriesVM.categories,
@@ -137,6 +145,24 @@ struct StudyTimerView: View {
                 )
             }
         }
+        .sheet(isPresented: $showSessionEndedPopup) {
+            VStack(spacing: 20) {
+                Text("⏰ Time's Up!")
+                    .font(.largeTitle)
+                    .bold()
+                Text("You studied for \(timerModel.studiedMinutes) minutes.")
+                    .multilineTextAlignment(.center)
+                Button("Awesome!") {
+                    showSessionEndedPopup = false
+                }
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(12)
+            }
+            .padding()
+        }
+
     }
 
     func formatTime(_ seconds: Int) -> String {

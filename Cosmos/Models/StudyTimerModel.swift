@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import ActivityKit
 
 #if os(iOS)
 import UIKit
@@ -32,6 +33,8 @@ class StudyTimerModel: ObservableObject {
     #if os(iOS)
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     #endif
+
+    private var liveActivity: Activity<StudyTimerAttributes>? = nil
 
     // MARK: - Init
     init(xpModel: XPModel? = nil, miningModel: MiningModel? = nil) {
@@ -67,6 +70,8 @@ class StudyTimerModel: ObservableObject {
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 self?.updateTimeRemaining()
             }
+
+            startLiveActivity(duration: initialDuration, topic: "Focus")
         }
     }
 
@@ -76,6 +81,7 @@ class StudyTimerModel: ObservableObject {
         let elapsed = Int(Date().timeIntervalSince(start))
         let newRemaining = max(0, initialDuration - elapsed)
         DispatchQueue.main.async { self.timeRemaining = newRemaining }
+        updateLiveActivity(remaining: newRemaining)
         if newRemaining <= 0 {
             stopTimer()
         }
@@ -95,6 +101,7 @@ class StudyTimerModel: ObservableObject {
             calculateReward()
         }
 
+        stopLiveActivity()
         endBackgroundTask()
     }
 
@@ -136,18 +143,6 @@ class StudyTimerModel: ObservableObject {
         return rewardValue
     }
 
-    // MARK: - Background Task (iOS only)
-    #if os(iOS)
-    private func endBackgroundTask() {
-        if backgroundTaskID != .invalid {
-            UIApplication.shared.endBackgroundTask(backgroundTaskID)
-            backgroundTaskID = .invalid
-        }
-    }
-    #else
-    private func endBackgroundTask() {}
-    #endif
-
     // MARK: - Focus Check
     func triggerFocusCheck() {
         isFocusCheckActive = true
@@ -178,6 +173,55 @@ class StudyTimerModel: ObservableObject {
             earnedRewards = data["earnedRewards"] as? [String] ?? []
             totalTimeStudied = data["totalTimeStudied"] as? Int ?? 0
             focusStreak = data["focusStreak"] as? Int ?? 0
+        }
+    }
+
+    // MARK: - Background Task (iOS only)
+    #if os(iOS)
+    private func endBackgroundTask() {
+        if backgroundTaskID != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTaskID)
+            backgroundTaskID = .invalid
+        }
+    }
+    #else
+    private func endBackgroundTask() {}
+    #endif
+
+    // MARK: - Live Activity
+    private func startLiveActivity(duration: Int, topic: String) {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+            print("❌ Live Activities not authorized")
+            return
+        }
+
+        let endDate = Date().addingTimeInterval(TimeInterval(duration))
+        let attributes = StudyTimerAttributes(topic: topic)
+        let state = StudyTimerAttributes.ContentState(timeRemaining: duration, endDate: endDate)
+
+        do {
+            liveActivity = try Activity<StudyTimerAttributes>.request(attributes: attributes, contentState: state)
+            print("✅ Live Activity started")
+        } catch {
+            print("❌ Failed to start live activity: \(error)")
+        }
+    }
+
+    private func updateLiveActivity(remaining: Int) {
+        guard let activity = liveActivity else { return }
+        Task {
+            await activity.update(using: StudyTimerAttributes.ContentState(
+                timeRemaining: remaining,
+                endDate: Date().addingTimeInterval(TimeInterval(remaining))
+            ))
+        }
+    }
+
+    private func stopLiveActivity() {
+        guard let activity = liveActivity else { return }
+        Task {
+            await activity.end(dismissalPolicy: .immediate)
+            liveActivity = nil
         }
     }
 }
