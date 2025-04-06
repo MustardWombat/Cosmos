@@ -20,28 +20,30 @@ class StudyTimerModel: ObservableObject {
     @Published var focusStreak: Int = 0 {
         didSet { saveData() }
     }
-    
-    // Inject XPModel for leveling up
+
     var xpModel: XPModel?
-    
+    var miningModel: MiningModel? // Injected mining model
+
     private var timer: Timer?
-    
-    #if os(iOS)
-    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
-    #endif
-    
     private var timerStartDate: Date?
     private var initialDuration: Int = 0
     private let studyDataKey = "StudyTimerModelData"
-    
-    // New initializer that accepts an optional XPModel
-    init(xpModel: XPModel? = nil) {
+
+    #if os(iOS)
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+    #endif
+
+    // MARK: - Init
+    init(xpModel: XPModel? = nil, miningModel: MiningModel? = nil) {
         self.xpModel = xpModel
+        self.miningModel = miningModel
         loadData()
     }
-    
+
+    // MARK: - Timer Start
     func startTimer(for duration: Int) {
-        let maxDuration = 3600  // 1 hour
+        let maxDuration = 3600 // 1 hour
+
         if isTimerRunning {
             initialDuration += duration
             initialDuration = min(initialDuration, maxDuration)
@@ -55,19 +57,20 @@ class StudyTimerModel: ObservableObject {
             timeRemaining = initialDuration
             isTimerRunning = true
             reward = nil
-            
+
             #if os(iOS)
             backgroundTaskID = UIApplication.shared.beginBackgroundTask(withName: "StudyTimer") {
                 self.endBackgroundTask()
             }
             #endif
-            
+
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
                 self?.updateTimeRemaining()
             }
         }
     }
-    
+
+    // MARK: - Timer Update
     func updateTimeRemaining() {
         guard let start = timerStartDate else { return }
         let elapsed = Int(Date().timeIntervalSince(start))
@@ -77,49 +80,63 @@ class StudyTimerModel: ObservableObject {
             stopTimer()
         }
     }
-    
+
+    // MARK: - Timer Stop
     func stopTimer() {
         let studiedTime = initialDuration - timeRemaining
         timer?.invalidate()
         timer = nil
         isTimerRunning = false
+
         print("Adding \(studiedTime) XP")
         xpModel?.addXP(studiedTime)
+
         if studiedTime >= 300 {
             calculateReward()
-            // Use the injected XPModel to add XP (level up)
         }
+
         endBackgroundTask()
     }
-    
+
+    // MARK: - Reward Logic with MiningModel
     func calculateReward() {
         let studiedTime = initialDuration - timeRemaining
         totalTimeStudied += studiedTime
+
+        var planetType: PlanetType
+
         if studiedTime >= 1800 {
-            reward = "Rare Planet"
+            planetType = .rare
         } else if studiedTime >= 900 {
-            reward = "Common Planet"
+            planetType = .common
         } else {
-            reward = "Tiny Asteroid"
+            planetType = .tiny
         }
-        if let earnedReward = reward {
-            earnedRewards.append(earnedReward)
+
+        reward = planetType.rawValue
+        earnedRewards.append(planetType.rawValue)
+
+        if let planet = miningModel?.getPlanet(ofType: planetType) {
+            miningModel?.availablePlanets.append(planet)
+            print("🪐 Added planet: \(planet.name)")
         }
     }
-    
+
+    // MARK: - Harvest Coins
     func harvestRewards() -> Int {
         let rewardValue = earnedRewards.reduce(0) { total, reward in
             switch reward {
-            case "🌟 Rare Planet": return total + 50
-            case "🌕 Common Planet": return total + 20
-            case "🌑 Tiny Asteroid": return total + 5
+            case PlanetType.rare.rawValue: return total + 50
+            case PlanetType.common.rawValue: return total + 20
+            case PlanetType.tiny.rawValue: return total + 5
             default: return total
             }
         }
         earnedRewards.removeAll()
         return rewardValue
     }
-    
+
+    // MARK: - Background Task (iOS only)
     #if os(iOS)
     private func endBackgroundTask() {
         if backgroundTaskID != .invalid {
@@ -128,20 +145,25 @@ class StudyTimerModel: ObservableObject {
         }
     }
     #else
-    private func endBackgroundTask() {
-        // No background task support on macOS.
-    }
+    private func endBackgroundTask() {}
     #endif
-    
+
+    // MARK: - Focus Check
     func triggerFocusCheck() {
         isFocusCheckActive = true
     }
-    
+
     func handleFocusAnswer(yes: Bool) {
-        if yes { focusStreak += 1 } else { focusStreak = 0; stopTimer() }
+        if yes {
+            focusStreak += 1
+        } else {
+            focusStreak = 0
+            stopTimer()
+        }
         isFocusCheckActive = false
     }
-    
+
+    // MARK: - Persistence
     private func saveData() {
         let data: [String: Any] = [
             "earnedRewards": earnedRewards,
@@ -150,7 +172,7 @@ class StudyTimerModel: ObservableObject {
         ]
         UserDefaults.standard.set(data, forKey: studyDataKey)
     }
-    
+
     private func loadData() {
         if let data = UserDefaults.standard.dictionary(forKey: studyDataKey) {
             earnedRewards = data["earnedRewards"] as? [String] ?? []
@@ -160,6 +182,7 @@ class StudyTimerModel: ObservableObject {
     }
 }
 
+// MARK: - Utility
 extension StudyTimerModel {
     var studiedMinutes: Int {
         if let _ = timerStartDate {

@@ -26,7 +26,9 @@ class CurrencyModel: ObservableObject {
     private func saveData() {
         UserDefaults.standard.set(balance, forKey: currencyKey)
     }
-    
+    func deposit(_ amount: Int) {
+            balance += amount
+        }
     private func loadData() {
         balance = UserDefaults.standard.integer(forKey: currencyKey)
     }

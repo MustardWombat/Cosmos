@@ -12,7 +12,7 @@ struct StudyTimerView: View {
         }
     }
 
-    @State private var newTopicName: String = ""
+    @State private var isShowingCategorySheet = false
 
     var body: some View {
         ZStack {
@@ -24,62 +24,34 @@ struct StudyTimerView: View {
                     .font(.largeTitle)
                     .bold()
 
-                // MARK: - Topic Selector List
+                // MARK: - Topic Selector Sheet Trigger
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Select a Study Topic:")
+                    Text("Selected Topic:")
                         .font(.headline)
                         .foregroundColor(.white)
 
-                    ScrollView {
-                        LazyVStack(spacing: 10) {
-                            ForEach(categoriesVM.categories) { category in
-                                Button(action: {
-                                    selectedTopic = category
-                                }) {
-                                    HStack {
-                                        Circle()
-                                            .fill(category.displayColor)
-                                            .frame(width: 12, height: 12)
-
-                                        Text(category.name)
-                                            .foregroundColor(.white)
-                                            .padding(.leading, 5)
-
-                                        Spacer()
-
-                                        if selectedTopic?.id == category.id {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundColor(.green)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(selectedTopic?.id == category.id ? Color.green : Color.gray, lineWidth: 2)
-                                    )
-                                }
+                    Button(action: {
+                        isShowingCategorySheet = true
+                    }) {
+                        HStack {
+                            if let topic = selectedTopic {
+                                Circle()
+                                    .fill(topic.displayColor)
+                                    .frame(width: 12, height: 12)
+                                Text(topic.name)
+                                    .foregroundColor(.white)
+                            } else {
+                                Text("Choose a topic")
+                                    .foregroundColor(.gray)
                             }
-
-                            // Add new topic inline
-                            HStack {
-                                TextField("New Topic", text: $newTopicName)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                Button("Add") {
-                                    let trimmed = newTopicName.trimmingCharacters(in: .whitespaces)
-                                    guard !trimmed.isEmpty else { return }
-                                    categoriesVM.addCategory(name: trimmed)
-                                    selectedTopic = categoriesVM.categories.last
-                                    newTopicName = ""
-                                }
-                                .disabled(newTopicName.trimmingCharacters(in: .whitespaces).isEmpty)
-                            }
-                            .padding(.top)
+                            Spacer()
+                            Image(systemName: "chevron.up")
+                                .foregroundColor(.white)
                         }
+                        .padding()
+                        .background(Color.black.opacity(0.3))
+                        .cornerRadius(10)
                     }
-                    .frame(height: 200)
-                    .padding(.horizontal)
-                    .background(Color.black.opacity(0.3))
-                    .cornerRadius(12)
                 }
 
                 // MARK: - Timer display
@@ -113,11 +85,6 @@ struct StudyTimerView: View {
                             categoriesVM.logStudyTime(categoryID: topic.id, date: Date(), minutes: minutesStudied)
                         }
                         timerModel.stopTimer()
-                        
-                        // If a reward was earned, add a planet based on that reward.
-                        if let reward = timerModel.reward {
-                            miningModel.addPlanet(for: reward)
-                        }
                     }) {
                         Text("Land")
                             .padding()
@@ -127,7 +94,6 @@ struct StudyTimerView: View {
                             .cornerRadius(10)
                     }
                     .disabled(!timerModel.isTimerRunning)
-
                 }
                 .padding()
 
@@ -145,40 +111,37 @@ struct StudyTimerView: View {
                 }
             }
             .onChange(of: timerModel.reward) { newReward in
-                guard let reward = newReward else { return }
-                var newPlanet: Planet?
-                switch reward {
-                case "Rare Planet":
-                    newPlanet = Planet(name: "Rare Planet", baseMiningTime: 120, miningReward: 50)
-                case "Common Planet":
-                    newPlanet = Planet(name: "Common Planet", baseMiningTime: 90, miningReward: 20)
-                case "Tiny Asteroid":
-                    newPlanet = Planet(name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5)
-                default:
-                    break
+                // ✅ No longer constructing planets here
+                // Planet creation is handled inside StudyTimerModel via miningModel.getPlanet(ofType:)
+
+                // Just clear the reward after showing it
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    timerModel.reward = nil
                 }
-                if let planet = newPlanet {
-                    miningModel.availablePlanets.append(planet)
-                    print("Added \(planet.name) to mining planets.")
-                }
-                timerModel.reward = nil
+            }
+            .sheet(isPresented: $isShowingCategorySheet) {
+                CategorySelectionSheet(
+                    categories: categoriesVM.categories,
+                    selected: $selectedTopic,
+                    isPresented: $isShowingCategorySheet,
+                    onAddCategory: { name in
+                        categoriesVM.addCategory(name: name)
+                        selectedTopic = categoriesVM.categories.last
+                    },
+                    onDeleteCategory: { category in
+                        categoriesVM.deleteCategory(category)
+                        if selectedTopic?.id == category.id {
+                            selectedTopic = nil
+                        }
+                    }
+                )
             }
         }
     }
 
-    // Utility to format time in MM:SS
     func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let seconds = seconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
-    }
-}
-
-struct StudyTimerView_Previews: PreviewProvider {
-    static var previews: some View {
-        StudyTimerView()
-            .environmentObject(StudyTimerModel(xpModel: XPModel()))
-            .environmentObject(MiningModel())
-            .environmentObject(CategoriesViewModel())
     }
 }

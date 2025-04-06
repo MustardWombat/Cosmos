@@ -5,7 +5,7 @@
 //  Created by James Williams on 3/24/25.
 //
 //  The "CategoriesViewModel" component is responsible for the logic
-//  Behind the storage of "categories" the user can create
+//  behind the storage of "categories" the user can create
 
 import Foundation
 import SwiftUI
@@ -31,6 +31,11 @@ class CategoriesViewModel: ObservableObject {
         categories.append(newCat)
     }
 
+    // Delete a category
+    func deleteCategory(_ category: Category) {
+        categories.removeAll { $0.id == category.id }
+    }
+
     // Log study time for a specific category and date.
     func logStudyTime(categoryID: UUID, date: Date, minutes: Int) {
         guard let index = categories.firstIndex(where: { $0.id == categoryID }) else { return }
@@ -46,9 +51,9 @@ class CategoriesViewModel: ObservableObject {
         }
 
         categories[index] = updatedCategory
-        saveCategories()
     }
 
+    // Retrieve last 7 days of data for a given category
     func weeklyData(for categoryID: UUID) -> [DailyLog] {
         guard let category = categories.first(where: { $0.id == categoryID }) else { return [] }
 
@@ -66,10 +71,11 @@ class CategoriesViewModel: ObservableObject {
                 }
             }
         }
+
         return results.sorted { $0.date < $1.date }
     }
 
-    // MARK: - Selected Topic Persistence ✅
+    // MARK: - Selected Topic Persistence
     func saveSelectedTopicID(_ id: UUID?) {
         if let id = id {
             UserDefaults.standard.set(id.uuidString, forKey: selectedTopicKey)
@@ -102,6 +108,77 @@ class CategoriesViewModel: ObservableObject {
             categories = try JSONDecoder().decode([Category].self, from: data)
         } catch {
             print("Failed to load categories: \(error)")
+        }
+    }
+}
+
+struct CategorySelectionSheet: View {
+    let categories: [Category]
+    @Binding var selected: Category?
+    @Binding var isPresented: Bool
+    @State private var newTopicName: String = ""
+    @State private var showDeleteAlert = false
+    @State private var categoryToDelete: Category?
+
+    var onAddCategory: (String) -> Void
+    var onDeleteCategory: (Category) -> Void
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(categories) { category in
+                    Button(action: {
+                        selected = category
+                        isPresented = false
+                    }) {
+                        HStack {
+                            Circle()
+                                .fill(category.displayColor)
+                                .frame(width: 12, height: 12)
+                            Text(category.name)
+                            Spacer()
+                            if selected?.id == category.id {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .simultaneousGesture(LongPressGesture().onEnded { _ in
+                        categoryToDelete = category
+                        showDeleteAlert = true
+                    })
+                }
+
+                // Add new topic row
+                HStack {
+                    TextField("New Topic", text: $newTopicName)
+                    Button("Add") {
+                        let trimmed = newTopicName.trimmingCharacters(in: .whitespaces)
+                        guard !trimmed.isEmpty else { return }
+                        onAddCategory(trimmed)
+                        newTopicName = ""
+                        isPresented = false
+                    }
+                    .disabled(newTopicName.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+            .navigationBarTitle("Choose Topic", displayMode: .inline)
+            .navigationBarItems(trailing: Button("Done") {
+                isPresented = false
+            })
+            .alert(isPresented: $showDeleteAlert) {
+                Alert(
+                    title: Text("Delete Topic"),
+                    message: Text("Are you sure you want to delete '\(categoryToDelete?.name ?? "")'?"),
+                    primaryButton: .destructive(Text("Delete")) {
+                        if let category = categoryToDelete {
+                            onDeleteCategory(category)
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
+            }
         }
     }
 }

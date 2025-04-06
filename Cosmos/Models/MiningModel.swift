@@ -2,6 +2,17 @@ import Foundation
 import SwiftUI
 import Combine
 
+
+
+// MARK: - Planet Type Enum
+enum PlanetType: String, Codable, CaseIterable {
+    case rare = "🌟 Rare Planet"
+    case common = "🌕 Common Planet"
+    case tiny = "🌑 Tiny Asteroid"
+    case starter = "Starter Planet"
+}
+
+// MARK: - Planet Model
 struct Planet: Identifiable, Codable, Equatable {
     let id: UUID
     let name: String
@@ -18,79 +29,95 @@ struct Planet: Identifiable, Codable, Equatable {
     }
 }
 
+// MARK: - Mining Model
 class MiningModel: ObservableObject {
-    @Published var availablePlanets: [Planet] = [
-        Planet(
-            id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-            name: "Starter Planet",
-            baseMiningTime: 10,
-            miningReward: 100
-        )
+    var awardCoins: ((Int) -> Void)? // Injected from CosmosAppView
+    // MARK: - Planet Index
+    private let planetIndex: [PlanetType: Planet] = [
+        .rare: Planet(id: UUID(), name: "Rare Planet", baseMiningTime: 120, miningReward: 50),
+        .common: Planet(id: UUID(), name: "Common Planet", baseMiningTime: 90, miningReward: 20),
+        .tiny: Planet(id: UUID(), name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5),
+        .starter: Planet(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+                         name: "Starter Planet", baseMiningTime: 10, miningReward: 100)
     ]
-    
+
+    // MARK: - Published Properties
+    @Published var availablePlanets: [Planet] = []
     @Published var currentMiningPlanet: Planet? = nil
     @Published var miningProgress: Double = 0.0   // 0.0 to 1.0
     @Published var speedMultiplier: Int = 1
 
+    // MARK: - Private Properties
     private var miningTimer: Timer?
     private var miningStartTime: Date?
     private var targetMiningDuration: Int = 0
 
     private let savedMiningKey = "currentMiningPlanetData"
 
-    // MARK: - Start Mining
+    // MARK: - Init
+    init() {
+        // Start with starter planet only
+        if let starter = planetIndex[.starter] {
+            availablePlanets = [starter]
+        }
+        resumeMiningIfNeeded()
+    }
 
+    // MARK: - Planet Access
+    func getPlanet(ofType type: PlanetType) -> Planet? {
+        planetIndex[type]
+    }
+
+    // MARK: - Start Mining
     func startMining(planet: Planet, inFocusMode: Bool) {
         guard currentMiningPlanet == nil else { return }
-        
+
         var updatedPlanet = planet
         updatedPlanet.miningStartDate = Date()
-        
+
         // Remove from list so we don’t show a duplicate.
         availablePlanets.removeAll { $0.id == planet.id }
-        
+
         currentMiningPlanet = updatedPlanet
         speedMultiplier = inFocusMode ? 2 : 1
         targetMiningDuration = updatedPlanet.baseMiningTime
         miningStartTime = updatedPlanet.miningStartDate
         miningProgress = 0.0
-        
+
         saveCurrentMiningState()
         startMiningUITimer()
     }
-    
+
     private func startMiningUITimer() {
         miningTimer?.invalidate()
         miningTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             self?.updateMiningProgress()
         }
     }
-    
+
     // MARK: - Update Progress
-    
     func updateMiningProgress() {
         guard let start = miningStartTime, currentMiningPlanet != nil else { return }
         let elapsed = Date().timeIntervalSince(start) * Double(speedMultiplier)
         let progress = elapsed / Double(targetMiningDuration)
         miningProgress = min(progress, 1.0)
-        
+
         if miningProgress >= 1.0 {
             finishMining()
         }
     }
-    
+
     func refreshMiningProgress() {
         if currentMiningPlanet != nil {
             updateMiningProgress()
         }
     }
-    
+
     // MARK: - Resume on Launch
-    
     func resumeMiningIfNeeded() {
         restoreSavedMiningState()
     }
-    
+
     func restoreSavedMiningState() {
         guard let data = UserDefaults.standard.data(forKey: savedMiningKey) else { return }
         do {
@@ -104,7 +131,7 @@ class MiningModel: ObservableObject {
             print("❌ Failed to load mining state: \(error)")
         }
     }
-    
+
     private func saveCurrentMiningState() {
         guard let planet = currentMiningPlanet else { return }
         do {
@@ -114,28 +141,32 @@ class MiningModel: ObservableObject {
             print("❌ Failed to save mining state: \(error)")
         }
     }
-    
+
     private func clearSavedMiningState() {
         UserDefaults.standard.removeObject(forKey: savedMiningKey)
     }
-    
+
     // MARK: - Finish Mining
-    
     func finishMining() {
-        if let planet = currentMiningPlanet {
-            print("⛏️ Finished mining \(planet.name)! Awarding \(planet.miningReward) coins.")
-            // Re-add the planet after mining completes.
-            availablePlanets.append(planet)
-        }
+        guard let planet = currentMiningPlanet else { return }
+
+        print("⛏️ Finished mining \(planet.name)! Awarding \(planet.miningReward) coins.")
+
+        // ✅ Award coins via the callback
+        awardCoins?(planet.miningReward)
+
+        // ✅ Do NOT re-add planet — it's already mined
+
         clearSavedMiningState()
         resetMiningState()
     }
-    
-    // We now disable cancellation per your request.
+
+
+    // MARK: - Cancel Mining (disabled)
     func cancelMining() {
-        // Not allowed.
+        // Disabled
     }
-    
+
     private func resetMiningState() {
         miningTimer?.invalidate()
         miningTimer = nil
@@ -143,26 +174,5 @@ class MiningModel: ObservableObject {
         miningStartTime = nil
         targetMiningDuration = 0
         miningProgress = 0.0
-    }
-}
-extension MiningModel {
-    func addPlanet(for reward: String) {
-        var newPlanet: Planet?
-        
-        switch reward {
-        case "🌟 Rare Planet":
-            newPlanet = Planet(name: "Rare Planet", baseMiningTime: 120, miningReward: 50)
-        case "🌕 Common Planet":
-            newPlanet = Planet(name: "Common Planet", baseMiningTime: 90, miningReward: 20)
-        case "🌑 Tiny Asteroid":
-            newPlanet = Planet(name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5)
-        default:
-            break
-        }
-        
-        if let planet = newPlanet {
-            availablePlanets.append(planet)
-            print("Added new planet: \(planet.name)")
-        }
     }
 }
