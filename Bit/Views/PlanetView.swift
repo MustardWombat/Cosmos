@@ -18,8 +18,7 @@ struct PlanetView: View {
             
             VStack() {
                 
-                ScreenView()
-                    .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44) // Default to 44 for iPhones with Dynamic Island
+                    
                 
                 // If a planet is currently being mined, show it separately.
                 if let current = miningModel.currentMiningPlanet {

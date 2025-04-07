@@ -20,7 +20,6 @@ struct ShopView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         
-                        ScreenView()
                         
                         ForEach(items) { item in
                             HStack {

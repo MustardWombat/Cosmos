@@ -22,7 +22,6 @@ struct StudyTimerView: View {
             StarOverlay(starCount: 50)
 
             VStack(spacing: 20) {
-                ScreenView()
 
                 // MARK: - Topic Selector Sheet Trigger
                 VStack(alignment: .leading, spacing: 10) {
