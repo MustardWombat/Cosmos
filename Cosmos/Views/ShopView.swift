@@ -19,13 +19,8 @@ struct ShopView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 20) {
-                        Text("Shop")
-                            .font(.largeTitle)
-                            .bold()
-                            .foregroundColor(.orange)
                         
-                        CoinDisplay()
-                            .environmentObject(currencyModel)
+                        ScreenView()
                         
                         ForEach(items) { item in
                             HStack {

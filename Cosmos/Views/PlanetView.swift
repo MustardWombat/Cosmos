@@ -12,16 +12,14 @@ struct PlanetView: View {
 
     var body: some View {
         ZStack {
+                
             // Starry background overlay
             StarOverlay(starCount: 50)
             
-            VStack(spacing: 20) {
-                CoinDisplay()
-                    .environmentObject(currencyModel)
+            VStack() {
                 
-                Text("Mining Bay")
-                    .font(.title)
-                    .foregroundColor(.white)
+                ScreenView()
+                    .padding(.top, UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44) // Default to 44 for iPhones with Dynamic Island
                 
                 // If a planet is currently being mined, show it separately.
                 if let current = miningModel.currentMiningPlanet {
@@ -84,7 +82,7 @@ struct PlanetView: View {
                 
                 Spacer()
             }
-            .padding(EdgeInsets(top: 80, leading: 20, bottom: 20, trailing: 20))
+            .padding(EdgeInsets(top: 5, leading: 20, bottom: 20, trailing: 20))
         }
         .ignoresSafeArea()
         .background(Color.black)
