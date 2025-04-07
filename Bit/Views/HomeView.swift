@@ -1,7 +1,7 @@
 import SwiftUI
 import Charts
 
-// SpinningPlanetView shows the Earth sprite rotating continuously.
+// MARK: - Rotating Planet Sprite
 struct SpinningPlanetView: View {
     @State private var rotation: Angle = .zero
 
@@ -18,6 +18,7 @@ struct SpinningPlanetView: View {
     }
 }
 
+// MARK: - HomeView
 struct HomeView: View {
     @Binding var currentView: String
     @State private var path: [String] = []
@@ -28,36 +29,33 @@ struct HomeView: View {
     @EnvironmentObject var xpModel: XPModel
 
     var body: some View {
-        ZStack {
-            // 1) Black background fills the entire screen.
-            Color.black
-                .ignoresSafeArea()
-                .zIndex(0)
-                .overlay(Text("")) // Spacer overlay if needed
-            
-            // 2) Starry overlay on top of the black background.
-            StarOverlay(starCount: 50)
-                .zIndex(999)
-            
-            // 3) Main content.
-            NavigationStack(path: $path) {
-                ScrollView {
+        NavigationStack(path: $path) {
+            ScrollView {
+                ZStack(alignment: .top) {
+                    // ✅ Background image that scrolls with content
+                    Image("SpaceBG")
+                        .resizable()
+                        .interpolation(.none)
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .ignoresSafeArea()
+                        .zIndex(0)
+
+
                     VStack(spacing: 20) {
                         XPDisplayView()
-                        // Display the spinning Earth sprite.
-                        SpinningPlanetView()
-                        
+                            .padding(.bottom, 400)
+                        //SpinningPlanetView()
                         WeeklyProgressChart()
                             .environmentObject(categoriesVM)
-                        
-                       
-                        
-                        // Purchases section.
+
+                        // 🛍 Purchases Section
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Your Purchases")
                                 .font(.title2)
                                 .bold()
                                 .foregroundColor(.orange)
+
                             if shopModel.purchasedItems.isEmpty {
                                 Text("No items purchased yet.")
                                     .foregroundColor(.gray)
@@ -77,25 +75,19 @@ struct HomeView: View {
                         .padding()
                         .background(Color.black.opacity(0.5))
                         .cornerRadius(10)
-                        
-                        Spacer(minLength: 20)
+
+                        Spacer(minLength: 40)
                     }
-                    .padding(EdgeInsets(top: 80, leading: 20, bottom: 0, trailing: 20))
-                    .frame(maxWidth: .infinity)
-                    .background(Color.black)
+                    .padding(.top, 100)
+                    .padding(.horizontal, 20)
+                    .zIndex(1)
                 }
-                .scrollContentBackground(.hidden)
-                .navigationBarBackButtonHidden(true)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black)
-            .zIndex(2)
+            .scrollContentBackground(.hidden)
+            .navigationBarBackButtonHidden(true)
         }
-        .background(Color.black)
-        .ignoresSafeArea()
         .onAppear {
             simTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-                // For example, simulate passive XP gain if desired:
                 // xpModel.addXP(10)
             }
         }
@@ -105,6 +97,7 @@ struct HomeView: View {
     }
 }
 
+// MARK: - Preview
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(currentView: .constant("Home"))
