@@ -100,6 +100,6 @@ struct BottomBar: View {
         }
         .padding()
         .padding(.bottom, 40)
-        .background(Color.black)
+        .background(Color.clear)
     }
 }
