@@ -44,9 +44,7 @@ struct LayoutShell: View {
                 VStack(alignment: .leading, spacing: 8) {
                     // Coin and balance
                     HStack(spacing: 6) {
-                        Image(systemName: "bitcoinsign.circle.fill")
-                            .foregroundColor(.yellow)
-                        Text("500")
+                        CoinDisplay()
                             .font(.subheadline.monospaced())
 
                             .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0)) // 🍀 dark retro green

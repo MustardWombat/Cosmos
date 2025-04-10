@@ -19,7 +19,7 @@ struct StudyTimerView: View {
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            StarOverlay(starCount: 50)
+            //StarOverlay(starCount: 50)
 
             VStack(spacing: 20) {
 
@@ -68,6 +68,8 @@ struct StudyTimerView: View {
                 // MARK: - Control buttons
                 HStack {
                     Button(action: {
+                        timerModel.selectedTopic = selectedTopic
+                        timerModel.categoriesVM = categoriesVM
                         timerModel.startTimer(for: 25 * 60)
                     }) {
                         Text("Add 25 Min")
@@ -79,10 +81,6 @@ struct StudyTimerView: View {
                     }
 
                     Button(action: {
-                        if let topic = selectedTopic {
-                            let minutesStudied = timerModel.studiedMinutes
-                            categoriesVM.logStudyTime(categoryID: topic.id, date: Date(), minutes: minutesStudied)
-                        }
                         timerModel.stopTimer()
                     }) {
                         Text("Land")

@@ -23,7 +23,9 @@ class StudyTimerModel: ObservableObject {
     }
 
     var xpModel: XPModel?
-    var miningModel: MiningModel? // Injected mining model
+    var miningModel: MiningModel?
+    var selectedTopic: Category?
+    var categoriesVM: CategoriesViewModel?
 
     private var timer: Timer?
     private var timerStartDate: Date?
@@ -36,24 +38,18 @@ class StudyTimerModel: ObservableObject {
 
     private var liveActivity: Activity<StudyTimerAttributes>? = nil
 
-    // MARK: - Init
     init(xpModel: XPModel? = nil, miningModel: MiningModel? = nil) {
         self.xpModel = xpModel
         self.miningModel = miningModel
         loadData()
     }
 
-    // MARK: - Timer Start
     func startTimer(for duration: Int) {
-        let maxDuration = 3600 // 1 hour
+        let maxDuration = 3600
 
         if isTimerRunning {
-            initialDuration += duration
-            initialDuration = min(initialDuration, maxDuration)
-            if let start = timerStartDate {
-                let elapsed = Int(Date().timeIntervalSince(start))
-                timeRemaining = max(0, initialDuration - elapsed)
-            }
+            // Optional: Disable stacking
+            return
         } else {
             initialDuration = min(duration, maxDuration)
             timerStartDate = Date()
@@ -75,7 +71,6 @@ class StudyTimerModel: ObservableObject {
         }
     }
 
-    // MARK: - Timer Update
     func updateTimeRemaining() {
         guard let start = timerStartDate else { return }
         let elapsed = Int(Date().timeIntervalSince(start))
@@ -87,34 +82,37 @@ class StudyTimerModel: ObservableObject {
         }
     }
 
-    // MARK: - Timer Stop
     func stopTimer() {
-        let studiedTime = initialDuration - timeRemaining
         timer?.invalidate()
         timer = nil
         isTimerRunning = false
 
-        print("Adding \(studiedTime) XP")
-        xpModel?.addXP(studiedTime)
+        let studiedTimeSeconds = Int(Date().timeIntervalSince(timerStartDate ?? Date()))
+        let studiedTimeMinutes = studiedTimeSeconds / 60
 
-        if studiedTime >= 300 {
-            calculateReward()
+        print("Adding \(studiedTimeSeconds) seconds (\(studiedTimeMinutes) min) XP")
+        xpModel?.addXP(studiedTimeSeconds)
+
+        if studiedTimeSeconds >= 300 {
+            calculateReward(using: studiedTimeSeconds)
+        }
+
+        if let topic = selectedTopic, let vm = categoriesVM {
+            vm.logStudyTime(categoryID: topic.id, date: Date(), minutes: studiedTimeMinutes)
         }
 
         stopLiveActivity()
         endBackgroundTask()
+        timerStartDate = nil
     }
 
-    // MARK: - Reward Logic with MiningModel
-    func calculateReward() {
-        let studiedTime = initialDuration - timeRemaining
-        totalTimeStudied += studiedTime
+    func calculateReward(using seconds: Int) {
+        totalTimeStudied += seconds
 
         var planetType: PlanetType
-
-        if studiedTime >= 1800 {
+        if seconds >= 1800 {
             planetType = .rare
-        } else if studiedTime >= 900 {
+        } else if seconds >= 900 {
             planetType = .common
         } else {
             planetType = .tiny
@@ -129,7 +127,6 @@ class StudyTimerModel: ObservableObject {
         }
     }
 
-    // MARK: - Harvest Coins
     func harvestRewards() -> Int {
         let rewardValue = earnedRewards.reduce(0) { total, reward in
             switch reward {
@@ -143,7 +140,6 @@ class StudyTimerModel: ObservableObject {
         return rewardValue
     }
 
-    // MARK: - Focus Check
     func triggerFocusCheck() {
         isFocusCheckActive = true
     }
@@ -158,7 +154,6 @@ class StudyTimerModel: ObservableObject {
         isFocusCheckActive = false
     }
 
-    // MARK: - Persistence
     private func saveData() {
         let data: [String: Any] = [
             "earnedRewards": earnedRewards,
@@ -176,7 +171,6 @@ class StudyTimerModel: ObservableObject {
         }
     }
 
-    // MARK: - Background Task (iOS only)
     #if os(iOS)
     private func endBackgroundTask() {
         if backgroundTaskID != .invalid {
@@ -188,7 +182,6 @@ class StudyTimerModel: ObservableObject {
     private func endBackgroundTask() {}
     #endif
 
-    // MARK: - Live Activity
     private func startLiveActivity(duration: Int, topic: String) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("❌ Live Activities not authorized")
@@ -226,11 +219,10 @@ class StudyTimerModel: ObservableObject {
     }
 }
 
-// MARK: - Utility
 extension StudyTimerModel {
     var studiedMinutes: Int {
-        if let _ = timerStartDate {
-            return (initialDuration - timeRemaining) / 60
+        if let start = timerStartDate {
+            return Int(Date().timeIntervalSince(start)) / 60
         }
         return 0
     }

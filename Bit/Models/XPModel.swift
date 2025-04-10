@@ -10,51 +10,86 @@ import SwiftUI
 import Combine
 
 class XPModel: ObservableObject {
-    @Published var xp: Int = 0           // Current XP
-    @Published var level: Int = 1        // Current Level
-    @Published var xpForNextLevel: Int = 100  // XP required for next level
-    @Published var upgradeMultiplier: Double = 1.0  // XP gain multiplier from upgrades
-    
-    /// Adds XP to the system, applying the upgrade multiplier.
+    @Published var xp: Int = 0 {
+        didSet { saveData() }
+    }
+
+    @Published var level: Int = 1 {
+        didSet { saveData() }
+    }
+
+    @Published var xpForNextLevel: Int = 100 {
+        didSet { saveData() }
+    }
+
+    @Published var upgradeMultiplier: Double = 1.0  // Optional: Persist if needed
+
+    // MARK: - Persistence Keys
+    private let xpKey = "XPModel.xp"
+    private let levelKey = "XPModel.level"
+    private let xpForNextLevelKey = "XPModel.xpForNextLevel"
+
+    // MARK: - Init
+    init() {
+        loadData()
+    }
+
+    // MARK: - Add XP
     func addXP(_ amount: Int) {
-        // Apply the multiplier to the XP gain
-            let effectiveXP = Int(Double(amount) * upgradeMultiplier)
+        let effectiveXP = Int(Double(amount) * upgradeMultiplier)
         xp += effectiveXP
         print("Current XP:", xp)
         checkForLevelUp()
     }
-    
-    /// Checks whether the current XP meets or exceeds the threshold for leveling up.
+
+    // MARK: - Level Up Check
     private func checkForLevelUp() {
-        // Loop in case the XP is enough for multiple level-ups at once.
         while xp >= xpForNextLevel {
             xp -= xpForNextLevel
             level += 1
             xpForNextLevel = calculateXPForNextLevel(for: level)
-            // You can also trigger a level-up event or animation here.
             print("Leveled up! New level: \(level)")
         }
     }
-    
-    /// Calculate the required XP for the next level.
-    /// For example, this quadratic formula increases XP requirement as level rises.
+
+    // MARK: - XP Formula
     private func calculateXPForNextLevel(for level: Int) -> Int {
         return 100 * level * level
     }
-    
-    /// Upgrade the XP multiplier (e.g., from purchasing an upgrade)
+
+    // MARK: - Upgrade Handling
     func applyUpgrade(multiplier: Double) {
         upgradeMultiplier *= multiplier
     }
-    
-    /// Optionally, reset XP (or this could be used in a prestige/reset system).
+
+    // MARK: - Reset XP
     func resetXP() {
         xp = 0
         level = 1
-        xpForNextLevel = 100
+        xpForNextLevel = calculateXPForNextLevel(for: level)
         upgradeMultiplier = 1.0
     }
+
+    // MARK: - Persistence
+    private func saveData() {
+        let defaults = UserDefaults.standard
+        defaults.set(xp, forKey: xpKey)
+        defaults.set(level, forKey: levelKey)
+        defaults.set(xpForNextLevel, forKey: xpForNextLevelKey)
+    }
+
+    private func loadData() {
+        let defaults = UserDefaults.standard
+        xp = defaults.integer(forKey: xpKey)
+        level = defaults.integer(forKey: levelKey)
+        if level == 0 { level = 1 }
+        xpForNextLevel = defaults.integer(forKey: xpForNextLevelKey)
+        if xpForNextLevel == 0 {
+            xpForNextLevel = calculateXPForNextLevel(for: level)
+        }
+    }
 }
+
 struct XPDisplayView: View {
     @EnvironmentObject var xpModel: XPModel
 

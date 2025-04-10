@@ -14,7 +14,7 @@ struct PlanetView: View {
         ZStack {
                 
             // Starry background overlay
-            StarOverlay(starCount: 50)
+            StarOverlay()
             
             VStack() {
                 
