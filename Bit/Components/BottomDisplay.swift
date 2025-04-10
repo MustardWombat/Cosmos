@@ -31,42 +31,26 @@ struct LayoutShell: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 🔼 Top bar
-            ZStack(alignment: .top) {
-                // Full background image
-                Image("Screen")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 140) // Adjust height to match your image
-                    .clipped()
+            ZStack(alignment: .topLeading) {
+                // Full-width black backdrop with slight transparency
+                Color.black.opacity(0.6)
+                    .frame(height: 70) // ⬅️ Shrink this height for a compact look
+                    .ignoresSafeArea(edges: .top)
 
-                VStack(alignment: .leading, spacing: 8) {
-                    // Coin and balance
+                VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         CoinDisplay()
                             .font(.subheadline.monospaced())
-
-                            .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0)) // 🍀 dark retro green
-
+                            .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
                     }
 
-                    // Welcome text
                     Text("Welcome back, Commander!")
-                        .font(.subheadline.monospaced())
-                        .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0)) // 🍀 dark retro green
-
-
-                    Spacer()
+                        .font(.caption.monospaced())
+                        .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
                 }
-                .padding(.top, 40)         // Push text down a bit from status bar
-                .padding(.leading, 115)    // Shift text past face
-                .frame(height: 140)
-                .background(Color.clear)
+                .padding(.top, 10)    // ⬅️ Adjusted padding
+                .padding(.leading, 20)
             }
-            .padding(.top, -25) // 👈 this moves the entire banner up!
-           // .ignoresSafeArea(edges: .top) // This puts the image *flush* against the top
-
 
             // 🧩 Main content area
             content
