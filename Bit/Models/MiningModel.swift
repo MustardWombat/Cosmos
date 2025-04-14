@@ -2,14 +2,11 @@ import Foundation
 import SwiftUI
 import Combine
 
-
-
 // MARK: - Planet Type Enum
 enum PlanetType: String, Codable, CaseIterable {
     case rare = "🌟 Rare Planet"
     case common = "🌕 Common Planet"
     case tiny = "🌑 Tiny Asteroid"
-    case starter = "Starter Planet"
 }
 
 // MARK: - Planet Model
@@ -32,13 +29,12 @@ struct Planet: Identifiable, Codable, Equatable {
 // MARK: - Mining Model
 class MiningModel: ObservableObject {
     var awardCoins: ((Int) -> Void)? // Injected from CosmosAppView
+
     // MARK: - Planet Index
     private let planetIndex: [PlanetType: Planet] = [
         .rare: Planet(id: UUID(), name: "Rare Planet", baseMiningTime: 120, miningReward: 50),
         .common: Planet(id: UUID(), name: "Common Planet", baseMiningTime: 90, miningReward: 20),
-        .tiny: Planet(id: UUID(), name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5),
-        .starter: Planet(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
-                         name: "Starter Planet", baseMiningTime: 10, miningReward: 100)
+        .tiny: Planet(id: UUID(), name: "Tiny Asteroid", baseMiningTime: 60, miningReward: 5)
     ]
 
     // MARK: - Published Properties
@@ -53,13 +49,11 @@ class MiningModel: ObservableObject {
     private var targetMiningDuration: Int = 0
 
     private let savedMiningKey = "currentMiningPlanetData"
+    private let availablePlanetsKey = "availablePlanets"
 
     // MARK: - Init
     init() {
-        // Start with starter planet only
-        if let starter = planetIndex[.starter] {
-            availablePlanets = [starter]
-        }
+        loadAvailablePlanets() // Load persisted planets if available
         resumeMiningIfNeeded()
     }
 
@@ -146,6 +140,36 @@ class MiningModel: ObservableObject {
         UserDefaults.standard.removeObject(forKey: savedMiningKey)
     }
 
+    // MARK: - Persistence for Available Planets
+    private func saveAvailablePlanets() {
+        do {
+            let data = try JSONEncoder().encode(availablePlanets)
+            UserDefaults.standard.set(data, forKey: availablePlanetsKey)
+        } catch {
+            print("❌ Failed to save available planets: \(error)")
+        }
+    }
+
+    private func loadAvailablePlanets() {
+        guard let data = UserDefaults.standard.data(forKey: availablePlanetsKey) else { return }
+        do {
+            availablePlanets = try JSONDecoder().decode([Planet].self, from: data)
+        } catch {
+            print("❌ Failed to load available planets: \(error)")
+        }
+    }
+
+    // Update available planets whenever they change
+    func addPlanet(_ planet: Planet) {
+        availablePlanets.append(planet)
+        saveAvailablePlanets()
+    }
+
+    func removePlanet(_ planet: Planet) {
+        availablePlanets.removeAll { $0.id == planet.id }
+        saveAvailablePlanets()
+    }
+
     // MARK: - Finish Mining
     func finishMining() {
         guard let planet = currentMiningPlanet else { return }
@@ -155,16 +179,8 @@ class MiningModel: ObservableObject {
         // ✅ Award coins via the callback
         awardCoins?(planet.miningReward)
 
-        // ✅ Do NOT re-add planet — it's already mined
-
         clearSavedMiningState()
         resetMiningState()
-    }
-
-
-    // MARK: - Cancel Mining (disabled)
-    func cancelMining() {
-        // Disabled
     }
 
     private func resetMiningState() {
