@@ -31,40 +31,40 @@ struct LayoutShell: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 🔼 Top bar
+            // Top bar
             ZStack(alignment: .top) {
-
-                VStack(alignment: .leading, spacing: 8) {
-                    // Coin and balance
-                    HStack(spacing: 6) {
+                VStack(spacing: 8) {
+                    // XP bar and coins on the same level, centered
+                    HStack(spacing: 20) {
+                        XPDisplayView()
                         CoinDisplay()
                             .font(.subheadline.monospaced())
                             .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 20)
 
-                    // Welcome text
+                    Spacer()
+
+                    // Welcome text at the bottom
                     Text("Welcome back, Commander!")
                         .font(.subheadline.monospaced())
                         .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
-
-                    Spacer()
+                        .padding(.bottom, 10)
                 }
-                .padding(.top, 40)
-                .padding(.leading, 115)
                 .frame(height: 140)
                 .background(Color.clear)
             }
-            .padding(.top, -25)
 
-            // 🧩 Main content area
+            // Main content area
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            // 🔽 Bottom bar
+            // Bottom bar
             BottomBar(currentView: $currentView)
         }
         .edgesIgnoringSafeArea(.bottom)
-        .background(Color.black) // <-- Set black background for the entire layout
+        .background(Color.black) // Black background for the entire layout
     }
 }
 
