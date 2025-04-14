@@ -33,40 +33,28 @@ struct LayoutShell: View {
         VStack(spacing: 0) {
             // 🔼 Top bar
             ZStack(alignment: .top) {
-                // Full background image
-                Image("Screen")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 140) // Adjust height to match your image
-                    .clipped()
 
                 VStack(alignment: .leading, spacing: 8) {
                     // Coin and balance
                     HStack(spacing: 6) {
                         CoinDisplay()
                             .font(.subheadline.monospaced())
-
-                            .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0)) // 🍀 dark retro green
-
+                            .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
                     }
 
                     // Welcome text
                     Text("Welcome back, Commander!")
                         .font(.subheadline.monospaced())
-                        .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0)) // 🍀 dark retro green
-
+                        .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
 
                     Spacer()
                 }
-                .padding(.top, 40)         // Push text down a bit from status bar
-                .padding(.leading, 115)    // Shift text past face
+                .padding(.top, 40)
+                .padding(.leading, 115)
                 .frame(height: 140)
                 .background(Color.clear)
             }
-            .padding(.top, -25) // 👈 this moves the entire banner up!
-           // .ignoresSafeArea(edges: .top) // This puts the image *flush* against the top
-
+            .padding(.top, -25)
 
             // 🧩 Main content area
             content
@@ -76,10 +64,9 @@ struct LayoutShell: View {
             BottomBar(currentView: $currentView)
         }
         .edgesIgnoringSafeArea(.bottom)
-        .background(Color.clear)
+        .background(Color.black) // <-- Set black background for the entire layout
     }
 }
-
 
 struct BottomBar: View {
     @Binding var currentView: String
