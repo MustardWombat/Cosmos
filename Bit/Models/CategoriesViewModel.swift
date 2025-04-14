@@ -18,11 +18,20 @@ class CategoriesViewModel: ObservableObject {
             saveCategories()
         }
     }
+    
+    // New published property for the selected topic.
+    @Published var selectedTopic: Category? {
+        didSet {
+            saveSelectedTopicID(selectedTopic?.id)
+        }
+    }
 
     private let storageKey = "savedCategories"
 
     init() {
         loadCategories()
+        // Load previously selected topic (if any) after loading categories.
+        selectedTopic = loadSelectedTopic() ?? (categories.first)
     }
 
     // Add a new category
@@ -112,73 +121,4 @@ class CategoriesViewModel: ObservableObject {
     }
 }
 
-struct CategorySelectionSheet: View {
-    let categories: [Category]
-    @Binding var selected: Category?
-    @Binding var isPresented: Bool
-    @State private var newTopicName: String = ""
-    @State private var showDeleteAlert = false
-    @State private var categoryToDelete: Category?
 
-    var onAddCategory: (String) -> Void
-    var onDeleteCategory: (Category) -> Void
-
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(categories) { category in
-                    Button(action: {
-                        selected = category
-                        isPresented = false
-                    }) {
-                        HStack {
-                            Circle()
-                                .fill(category.displayColor)
-                                .frame(width: 12, height: 12)
-                            Text(category.name)
-                            Spacer()
-                            if selected?.id == category.id {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.green)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .simultaneousGesture(LongPressGesture().onEnded { _ in
-                        categoryToDelete = category
-                        showDeleteAlert = true
-                    })
-                }
-
-                // Add new topic row
-                HStack {
-                    TextField("New Topic", text: $newTopicName)
-                    Button("Add") {
-                        let trimmed = newTopicName.trimmingCharacters(in: .whitespaces)
-                        guard !trimmed.isEmpty else { return }
-                        onAddCategory(trimmed)
-                        newTopicName = ""
-                        isPresented = false
-                    }
-                    .disabled(newTopicName.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-            }
-            .navigationBarTitle("Choose Topic", displayMode: .inline)
-            .navigationBarItems(trailing: Button("Done") {
-                isPresented = false
-            })
-            .alert(isPresented: $showDeleteAlert) {
-                Alert(
-                    title: Text("Delete Topic"),
-                    message: Text("Are you sure you want to delete '\(categoryToDelete?.name ?? "")'?"),
-                    primaryButton: .destructive(Text("Delete")) {
-                        if let category = categoryToDelete {
-                            onDeleteCategory(category)
-                        }
-                    },
-                    secondaryButton: .cancel()
-                )
-            }
-        }
-    }
-}

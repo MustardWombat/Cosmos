@@ -65,3 +65,40 @@ struct DailyLog: Identifiable, Codable, Hashable {
     var date: Date
     var minutes: Int
 }
+
+struct CategorySelectionSheet: View {
+    let categories: [Category]
+    @Binding var selected: Category?
+    @Binding var isPresented: Bool
+    var onAddCategory: (String) -> Void
+    var onDeleteCategory: (Category) -> Void
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(categories) { category in
+                    Button(action: {
+                        selected = category // Update the selected binding
+                        isPresented = false
+                    }) {
+                        HStack {
+                            Circle()
+                                .fill(category.displayColor)
+                                .frame(width: 12, height: 12)
+                            Text(category.name)
+                            Spacer()
+                            if selected?.id == category.id {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle("Choose Topic", displayMode: .inline)
+            .navigationBarItems(trailing: Button("Done") {
+                isPresented = false
+            })
+        }
+    }
+}

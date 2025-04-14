@@ -6,20 +6,12 @@ struct StudyTimerView: View {
     @EnvironmentObject var categoriesVM: CategoriesViewModel
     @Environment(\.scenePhase) var scenePhase
 
-    @State private var selectedTopic: Category? = nil {
-        didSet {
-            categoriesVM.saveSelectedTopicID(selectedTopic?.id)
-        }
-    }
-
     @State private var isShowingCategorySheet = false
     @State private var showSessionEndedPopup = false
-
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            //StarOverlay(starCount: 50)
 
             VStack(spacing: 20) {
 
@@ -33,7 +25,7 @@ struct StudyTimerView: View {
                         isShowingCategorySheet = true
                     }) {
                         HStack {
-                            if let topic = selectedTopic {
+                            if let topic = categoriesVM.selectedTopic {
                                 Circle()
                                     .fill(topic.displayColor)
                                     .frame(width: 12, height: 12)
@@ -68,7 +60,7 @@ struct StudyTimerView: View {
                 // MARK: - Control buttons
                 HStack {
                     Button(action: {
-                        timerModel.selectedTopic = selectedTopic
+                        timerModel.selectedTopic = categoriesVM.selectedTopic
                         timerModel.categoriesVM = categoriesVM
                         timerModel.startTimer(for: 25 * 60)
                     }) {
@@ -98,8 +90,8 @@ struct StudyTimerView: View {
             }
             .padding()
             .onAppear {
-                if selectedTopic == nil {
-                    selectedTopic = categoriesVM.loadSelectedTopic()
+                if categoriesVM.selectedTopic == nil {
+                    categoriesVM.selectedTopic = categoriesVM.loadSelectedTopic()
                 }
             }
             .onChange(of: scenePhase) { newPhase in
@@ -108,10 +100,6 @@ struct StudyTimerView: View {
                 }
             }
             .onChange(of: timerModel.reward) { newReward in
-                // ✅ No longer constructing planets here
-                // Planet creation is handled inside StudyTimerModel via miningModel.getPlanet(ofType:)
-
-                // Just clear the reward after showing it
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     timerModel.reward = nil
                 }
@@ -125,16 +113,16 @@ struct StudyTimerView: View {
             .sheet(isPresented: $isShowingCategorySheet) {
                 CategorySelectionSheet(
                     categories: categoriesVM.categories,
-                    selected: $selectedTopic,
+                    selected: $categoriesVM.selectedTopic, // Use the binding to the view model's selectedTopic
                     isPresented: $isShowingCategorySheet,
                     onAddCategory: { name in
                         categoriesVM.addCategory(name: name)
-                        selectedTopic = categoriesVM.categories.last
+                        categoriesVM.selectedTopic = categoriesVM.categories.last // Automatically select the newly added category
                     },
                     onDeleteCategory: { category in
                         categoriesVM.deleteCategory(category)
-                        if selectedTopic?.id == category.id {
-                            selectedTopic = nil
+                        if categoriesVM.selectedTopic?.id == category.id {
+                            categoriesVM.selectedTopic = nil // Clear the selection if the selected category is deleted
                         }
                     }
                 )
@@ -157,7 +145,6 @@ struct StudyTimerView: View {
             }
             .padding()
         }
-
     }
 
     func formatTime(_ seconds: Int) -> String {
