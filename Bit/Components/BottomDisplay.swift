@@ -33,16 +33,16 @@ struct LayoutShell: View {
         VStack(spacing: 0) {
             // Top bar
             ZStack(alignment: .top) {
-                VStack(spacing: 8) {
+                VStack(spacing: 8) { // Slightly increased spacing for better layout
                     // XP bar and coins on the same level, centered
-                    HStack(spacing: 20) {
+                    HStack(spacing: 16) { // Reduced spacing between XP and coins
                         XPDisplayView()
                         CoinDisplay()
                             .font(.subheadline.monospaced())
                             .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.top, 20)
+                    .padding(.top, 10) // Reduced top padding
 
                     Spacer()
 
@@ -50,9 +50,9 @@ struct LayoutShell: View {
                     Text("Welcome back, Commander!")
                         .font(.subheadline.monospaced())
                         .foregroundColor(Color(red: 0.0, green: 1, blue: 0.0))
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 10) // Increased bottom padding to prevent cutoff
                 }
-                .frame(height: 140)
+                .frame(height: 130) // Slightly increased height for the top bar
                 .background(Color.clear)
             }
 
@@ -83,8 +83,8 @@ struct BottomBar: View {
             BottomBarButton(iconName: "cart.fill", viewName: "Shop", currentView: $currentView)
             Spacer()
         }
-        .padding()
-        .padding(.bottom, 40)
+        .padding(.horizontal, 10) // Reduced horizontal padding
+        .padding(.bottom, 20) // Reduced bottom padding
         .background(Color.clear)
     }
 }

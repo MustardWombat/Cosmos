@@ -17,7 +17,20 @@ struct StudyTimerView: View {
 
                 // MARK: - Topic Selector Sheet Trigger
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Selected Topic:")
+
+
+                // MARK: - Timer display
+                Text(formatTime(timerModel.timeRemaining))
+                    .font(.system(size: 64, weight: .bold, design: .monospaced))
+                    .foregroundColor(timerModel.isTimerRunning ? .green : .red)
+
+                // MARK: - Reward display
+                if let reward = timerModel.reward {
+                    Text("You earned: \(reward)")
+                        .font(.headline)
+                        .foregroundColor(.orange)
+                }
+                                    Text("Selected Topic:")
                         .font(.headline)
                         .foregroundColor(.white)
 
@@ -45,18 +58,6 @@ struct StudyTimerView: View {
                     }
                 }
 
-                // MARK: - Timer display
-                Text(formatTime(timerModel.timeRemaining))
-                    .font(.system(size: 64, weight: .bold, design: .monospaced))
-                    .foregroundColor(timerModel.isTimerRunning ? .green : .red)
-
-                // MARK: - Reward display
-                if let reward = timerModel.reward {
-                    Text("You earned: \(reward)")
-                        .font(.headline)
-                        .foregroundColor(.orange)
-                }
-
                 // MARK: - Control buttons
                 HStack {
                     Button(action: {
@@ -67,10 +68,11 @@ struct StudyTimerView: View {
                         Text("Add 25 Min")
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color.green)
+                            .background(categoriesVM.selectedTopic == nil ? Color.gray : Color.green)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
+                    .disabled(categoriesVM.selectedTopic == nil) // Disable if no topic is selected
 
                     Button(action: {
                         timerModel.stopTimer()
